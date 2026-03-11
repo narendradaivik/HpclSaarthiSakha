@@ -1,0 +1,127 @@
+{
+  "user": {
+    "id": "USR001",
+    "name": "Rajesh Kumar",
+    "phone": "9876543210",
+    "truck_number": "RJ-14-AB-1234",
+    "level": "Level 2 — Bronze",
+    "member_since": "December 2025",
+    "total_points": 16750,
+    "redeemable_points": 9750,
+    "liters_filled": 16750,
+    "transactions": 48
+  },
+  "otp": "123456",
+  "rewards_catalog": [
+    {
+      "id": "R001",
+      "name": "T-Shirt",
+      "name_hi": "टी-शर्ट",
+      "points": 300,
+      "image": "tshirt"
+    },
+    {
+      "id": "R002",
+      "name": "Wall Clock",
+      "name_hi": "दीवार घड़ी",
+      "points": 500,
+      "image": "clock"
+    },
+    {
+      "id": "R003",
+      "name": "Shopping Voucher",
+      "name_hi": "शॉपिंग वाउचर",
+      "points": 800,
+      "image": "voucher"
+    },
+    {
+      "id": "R004",
+      "name": "Pressure Cooker",
+      "name_hi": "प्रेशर कुकर",
+      "points": 1000,
+      "image": "cooker"
+    },
+    {
+      "id": "R005",
+      "name": "Dinner Set",
+      "name_hi": "डिनर सेट",
+      "points": 1500,
+      "image": "dinnerset"
+    }
+  ],
+  "redeem_requests": [
+    {
+      "id": "RR001",
+      "reward_name": "टी-शर्ट",
+      "date": "12 फ़रवरी 2026",
+      "points": 300,
+      "status": "delivered",
+      "status_hi": "डिलीवर हो गया",
+      "delivery_date": "12 फ़रवरी 2026",
+      "outlet": "HPCL पंप, NH-44, KM 120, दिल्ली"
+    },
+    {
+      "id": "RR002",
+      "reward_name": "दीवार घड़ी",
+      "date": "15 फ़रवरी 2026",
+      "points": 500,
+      "status": "processing",
+      "status_hi": "प्रोसेसिंग",
+      "ready_in_days": 5,
+      "ready_date": "20 फ़रवरी 2026",
+      "outlet": "HPCL पंप, NH-48, KM 85, जयपुर"
+    },
+    {
+      "id": "RR003",
+      "reward_name": "प्रेशर कुकर",
+      "date": "18 फ़रवरी 2026",
+      "points": 1000,
+      "status": "pending",
+      "status_hi": "पेंडिंग",
+      "ready_in_days": 8,
+      "ready_date": "26 फ़रवरी 2026",
+      "outlet": "HPCL पंप, NH-8, KM 200, अहमदाबाद"
+    }
+  ],
+  "fuel_claims": [
+    {
+      "id": "FC001",
+      "fuel_type": "डीज़ल",
+      "liters": 380,
+      "outlet": "HPCL Rajasthan Fuel Hub • NH-48",
+      "date": "19 दिसं 2025",
+      "amount": 36100,
+      "points": 0,
+      "status": "pending"
+    },
+    {
+      "id": "FC002",
+      "fuel_type": "डीज़ल",
+      "liters": 350,
+      "outlet": "HPCL Highway Outlet • NH44",
+      "date": "18 दिसं 2025",
+      "amount": 33250,
+      "points": 0,
+      "status": "verified"
+    },
+    {
+      "id": "FC003",
+      "fuel_type": "डीज़ल",
+      "liters": 420,
+      "outlet": "HPCL Rajasthan Fuel Hub • NH-48",
+      "date": "17 दिसं 2025",
+      "amount": 39900,
+      "points": 0,
+      "status": "pending"
+    }
+  ],
+  "outlets": [
+    {"id": "O001", "name": "HPCL Highway Station", "highway": "NH44", "km": "KM 312"},
+    {"id": "O002", "name": "HPCL Dhabha Point", "highway": "NH44", "km": "KM 356"},
+    {"id": "O003", "name": "HPCL Express Fuel", "highway": "NH48", "km": "KM 89"},
+    {"id": "O004", "name": "HPCL Highway Hub", "highway": "NH27", "km": "KM 156"},
+    {"id": "O005", "name": "HPCL Rajasthan Fuel Hub", "highway": "NH-48", "km": "KM 245"},
+    {"id": "O006", "name": "HPCL Gujarat Express", "highway": "NH-48", "km": "KM 380"},
+    {"id": "O007", "name": "HPCL Maharashtra Pride", "highway": "NH-48", "km": "KM 520"}
+  ]
+}

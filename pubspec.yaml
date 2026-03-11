@@ -1,0 +1,74 @@
+name: highway_rewards
+description: "Sarathi Sakha - HPCL Loyalty App"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  webview_flutter: ^4.13.1
+  geolocator: ^11.0.0
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
+  http: ^1.6.0
+  flutter_tts: ^4.2.0
+  google_fonts: ^6.2.1
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+# ── App Icon config (must be at root level, NOT inside dev_dependencies) ───
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/sarathi-sakha-logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/sarathi-sakha-logo.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/data.json
+    - assets/images/air-conditioner.png
+    - assets/images/bike.png
+    - assets/images/dinner-set.png
+    - assets/images/fan.png
+    - assets/images/table-fan.png
+    - assets/images/headphones.png
+    - assets/images/iron-press.png
+    - assets/images/mixer-grinder.png
+    - assets/images/pair-tyres.png
+    - assets/images/radial-tyre.png
+    - assets/images/pressure-cooker.png
+    - assets/images/radio.png
+    - assets/images/refrigerator.png
+    - assets/images/shopping-voucher.png
+    - assets/images/smartphone.png
+    - assets/images/smart-watch.png
+    - assets/images/thali-set.png
+    - assets/images/torch.png
+    - assets/images/tshirt-new.png
+    - assets/images/wall-clock.png
+    - assets/images/water-jug.png
+    - assets/images/hpcl_logo.png
+    - assets/images/sarathi-sakha-logo.png
+
+  fonts:
+    - family: NotoSansDevanagari
+      fonts:
+        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
+        - asset: assets/fonts/NotoSansDevanagari-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansDevanagari-Bold.ttf
+          weight: 700
