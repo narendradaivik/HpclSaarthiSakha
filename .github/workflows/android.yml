@@ -33,7 +33,53 @@
 #         name: app-apk
 #         path: build/app/outputs/flutter-apk/app-debug.apk
 
-name: Flutter Build & Release APK
+# name: Flutter Build & Release APK
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     # 1. Checkout code
+#     - uses: actions/checkout@v4
+
+#     # 2. Setup Flutter
+#     - uses: subosito/flutter-action@v2
+#       with:
+#         flutter-version: '3.41.4'
+
+#     # 3. Install dependencies
+#     - name: Install dependencies
+#       run: flutter pub get
+
+#     # 4. Build APK
+#     - name: Build APK
+#       run: flutter build apk --debug
+
+#     # 5. Rename APK (important)
+#     - name: Rename APK
+#       run: mv build/app/outputs/flutter-apk/app-debug.apk app.apk
+
+#     # 6. Create Release & Upload APK
+#     - name: Create GitHub Release
+#       uses: softprops/action-gh-release@v2
+#       with:
+#         tag_name: v1.${{ github.run_number }}
+#         name: Release v1.${{ github.run_number }}
+#         files: app.apk
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+name: Flutter Release APK
+
+permissions:
+  contents: write
 
 on:
   push:
@@ -45,32 +91,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout code
+    # 1. Checkout
     - uses: actions/checkout@v4
 
-    # 2. Setup Flutter
+    # 2. Setup Java
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    # 3. Setup Flutter
     - uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.41.4'
 
-    # 3. Install dependencies
-    - name: Install dependencies
-      run: flutter pub get
+    # 4. Decode Keystore
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
 
-    # 4. Build APK
-    - name: Build APK
-      run: flutter build apk --debug
+    # 5. Install deps
+    - run: flutter pub get
 
-    # 5. Rename APK (important)
-    - name: Rename APK
-      run: mv build/app/outputs/flutter-apk/app-debug.apk app.apk
+    # 6. Get version from pubspec.yaml
+    - name: Extract version
+      id: version
+      run: |
+        VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # 6. Create Release & Upload APK
+    # 7. Build SIGNED APK
+    - name: Build Release APK
+      run: flutter build apk --release
+
+    # 8. Rename APK
+    - run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
+
+    # 9. Generate Release Notes
+    - name: Generate Notes
+      id: notes
+      run: |
+        echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
+        echo "" >> notes.txt
+        git log -1 --pretty=format:"%s" >> notes.txt
+
+    # 10. Create Release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.${{ github.run_number }}
-        name: Release v1.${{ github.run_number }}
-        files: app.apk
+        tag_name: v${{ steps.version.outputs.version }}
+        name: Release v${{ steps.version.outputs.version }}
+        body_path: notes.txt
+        files: app-${{ steps.version.outputs.version }}.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
