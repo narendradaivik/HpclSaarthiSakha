@@ -111,7 +111,8 @@ jobs:
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
 
     # 5. Install deps
-    - run: flutter pub get
+    - name: Install dependencies
+      run: flutter pub get
 
     # 6. Get version from pubspec.yaml
     - name: Extract version
@@ -120,22 +121,26 @@ jobs:
         VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # 7. Build SIGNED APK
+    # 7. Build SIGNED APK ✅ (FIX HERE)
     - name: Build Release APK
       run: flutter build apk --release
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     # 8. Rename APK
-    - run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
+    - name: Rename APK
+      run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
 
     # 9. Generate Release Notes
     - name: Generate Notes
-      id: notes
       run: |
         echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
         echo "" >> notes.txt
-        git log -1 --pretty=format:"%s" >> notes.txt
+        git log -5 --pretty=format:"- %s" >> notes.txt
 
-    # 10. Create Release
+    # 10. Create GitHub Release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
