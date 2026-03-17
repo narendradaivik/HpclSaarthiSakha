@@ -3,7 +3,7 @@ name: Flutter Build APK
 on:
   push:
     branches:
-      - main   # your branch
+      - main
 
 jobs:
   build:
@@ -11,12 +11,12 @@ jobs:
 
     steps:
     # 1. Checkout code
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # 2. Setup Flutter
     - uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0'   # you can change if needed
+        flutter-version: 'stable'
 
     # 3. Install dependencies
     - name: Install dependencies
@@ -26,9 +26,9 @@ jobs:
     - name: Build APK
       run: flutter build apk --debug
 
-    # 5. Upload APK
+    # 5. Upload APK (FIXED)
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: app-apk
         path: build/app/outputs/flutter-apk/app-debug.apk
