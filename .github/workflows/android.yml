@@ -1,4 +1,39 @@
-name: Flutter Build APK
+# name: Flutter Build APK
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     # 1. Checkout code
+#     - uses: actions/checkout@v4
+
+#     # 2. Setup Flutter
+#     - uses: subosito/flutter-action@v2
+#       with:
+#         flutter-version: '3.41.4'
+
+#     # 3. Install dependencies
+#     - name: Install dependencies
+#       run: flutter pub get
+
+#     # 4. Build APK
+#     - name: Build APK
+#       run: flutter build apk --debug
+
+#     # 5. Upload APK (FIXED)
+#     - name: Upload APK
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: app-apk
+#         path: build/app/outputs/flutter-apk/app-debug.apk
+
+name: Flutter Build & Release APK
 
 on:
   push:
@@ -26,9 +61,16 @@ jobs:
     - name: Build APK
       run: flutter build apk --debug
 
-    # 5. Upload APK (FIXED)
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+    # 5. Rename APK (important)
+    - name: Rename APK
+      run: mv build/app/outputs/flutter-apk/app-debug.apk app.apk
+
+    # 6. Create Release & Upload APK
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
       with:
-        name: app-apk
-        path: build/app/outputs/flutter-apk/app-debug.apk
+        tag_name: v1.${{ github.run_number }}
+        name: Release v1.${{ github.run_number }}
+        files: app.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
