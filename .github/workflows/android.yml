@@ -1,47 +1,34 @@
-name: Build APK & Upload
+name: Flutter Build APK
 
 on:
   push:
     branches:
-      - main
+      - main   # your branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Get your code
-    - name: Checkout code
-      uses: actions/checkout@v3
+    # 1. Checkout code
+    - uses: actions/checkout@v3
 
-    # 2. Install Java (required for Android build)
-    - name: Setup Java
-      uses: actions/setup-java@v3
+    # 2. Setup Flutter
+    - uses: subosito/flutter-action@v2
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        flutter-version: '3.22.0'   # you can change if needed
 
-    # 3. Install Android SDK
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: flutter pub get
 
-    # 4. Give permission to Gradle
-    - name: Grant permission
-      run: chmod +x gradlew
-
-    # 5. Build APK
+    # 4. Build APK
     - name: Build APK
-      run: ./gradlew assembleDebug
+      run: flutter build apk --debug
 
-    # 6. Rename APK
-    - name: Rename APK
-      run: mv app/build/outputs/apk/debug/app-debug.apk app.apk
-
-    # 7. Create Release and Upload APK
-    - name: Upload APK to GitHub Release
-      uses: softprops/action-gh-release@v1
+    # 5. Upload APK
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
       with:
-        tag_name: v1.${{ github.run_number }}
-        files: app.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: app-apk
+        path: build/app/outputs/flutter-apk/app-debug.apk
