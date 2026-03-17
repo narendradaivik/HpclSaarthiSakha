@@ -95,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (!didPop) _onWillPop();
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.white,
         body: _currentIndex == 0
             ? HomeTab(onSwitchTab: (i) => setState(() => _currentIndex = i))
             : _currentIndex == 1
@@ -751,14 +751,14 @@ class _HomeTabState extends State<HomeTab> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
-                                        'रिडीम योग्य (वेरिफाइड)',
+                                        'कुल डीज़ल (लीटर)',
                                         style: TextStyle(
                                           color: Colors.white60,
                                           fontSize: 14,
                                         ),
                                       ),
                                       Text(
-                                        '${_fmt(_redeemableLiters)} L',
+                                        '${_fmt(_totalLiters)} L',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 15,
@@ -801,7 +801,7 @@ class _HomeTabState extends State<HomeTab> {
                         child: _statCard(
                           Icons.local_gas_station,
                           _statsLoading ? '—' : _fmt(_totalLiters),
-                          'आज तक के पॉइंट्स',
+                          'कुल डीज़ल (L)',
                           const Color(0xFF000000),
                         ),
                       ),
@@ -1053,21 +1053,24 @@ class _HomeTabState extends State<HomeTab> {
                                     border: Border.all(
                                       color: canRedeem
                                           ? Colors.green.shade300
-                                          : Colors.grey.shade200,
+                                          : Colors.grey.shade100,
                                       width: canRedeem ? 1.5 : 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: canRedeem
-                                        ? [
-                                            BoxShadow(
-                                              color: Colors.green.withOpacity(
-                                                0.08,
-                                              ),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ]
-                                        : null,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: canRedeem
+                                            ? Colors.green.withOpacity(0.12)
+                                            : Colors.black.withOpacity(0.06),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.03),
+                                        blurRadius: 3,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1287,8 +1290,20 @@ class _HomeTabState extends State<HomeTab> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.055),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1390,36 +1405,36 @@ class _HomeTabState extends State<HomeTab> {
                       if (r.deliveryPhone != null &&
                           r.deliveryPhone!.isNotEmpty) ...[
                         const SizedBox(height: 3),
-                        // GestureDetector(
-                        //   onTap: () async {
-                        //     final uri = Uri(
-                        //       scheme: 'tel',
-                        //       path: r.deliveryPhone,
-                        //     );
-                        //     if (await canLaunchUrl(uri)) {
-                        //       await launchUrl(uri);
-                        //     }
-                        //   },
-                        //   child: Row(
-                        //     children: [
-                        //       const Icon(
-                        //         Icons.phone,
-                        //         size: 14,
-                        //         color: Color(0xFFE05C6A),
-                        //       ),
-                        //       const SizedBox(width: 2),
-                        //       Text(
-                        //         r.deliveryPhone!,
-                        //         style: const TextStyle(
-                        //           fontSize: 13,
-                        //           color: Color(0xFFE05C6A),
-                        //           decoration: TextDecoration.underline,
-                        //           decorationColor: Color(0xFFE05C6A),
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
+                        GestureDetector(
+                          onTap: () async {
+                            final uri = Uri(
+                              scheme: 'tel',
+                              path: r.deliveryPhone,
+                            );
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri);
+                            }
+                          },
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.phone,
+                                size: 14,
+                                color: Color(0xFFE05C6A),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                r.deliveryPhone!,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFFE05C6A),
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Color(0xFFE05C6A),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -1535,8 +1550,20 @@ class _HomeTabState extends State<HomeTab> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.055),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1705,13 +1732,18 @@ class _HomeTabState extends State<HomeTab> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: Colors.grey.shade200),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -1887,7 +1919,12 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget _sectionCard({required Widget child, double bottomMargin = 8}) =>
       Container(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.shade100, width: 1),
+          ),
+        ),
         margin: EdgeInsets.only(bottom: bottomMargin),
         padding: const EdgeInsets.all(16),
         child: child,
@@ -1901,9 +1938,14 @@ class _HomeTabState extends State<HomeTab> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
