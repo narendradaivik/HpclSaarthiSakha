@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:highway_rewards/screens/phone_verification_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/services.dart';
 import 'len_den_screen.dart';
-import 'qr_scan_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -394,7 +394,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const QRScanScreen(),
+                                    builder: (_) =>
+                                        const PhoneVerificationScreen(),
                                   ),
                                   (route) => false,
                                 );

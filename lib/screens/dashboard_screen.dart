@@ -422,9 +422,11 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<void> _loadDriverStats() async {
     setState(() => _statsLoading = true);
-    final r = await DriverService.instance.fetchDriverStats();
+    // Use fetchDriverProfile — same proven endpoint used by Profile screen.
+    // /driver-stats returns different field names (total_volume etc.) and is unreliable.
+    final r = await DriverService.instance.fetchDriverProfile();
     if (!mounted) return;
-    final stats = r.success ? r.data : null;
+    final stats = r.success ? r.data?.driver : null;
     if (stats != null) {
       UserSession.instance.update(
         redeemableLiters: stats.redeemableLiters,
@@ -1359,44 +1361,65 @@ class _HomeTabState extends State<HomeTab> {
                     (r.deliveryPhone != null &&
                         r.deliveryPhone!.isNotEmpty)) ...[
                   const SizedBox(height: 5),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (r.deliveryAddress != null &&
-                          r.deliveryAddress!.isNotEmpty) ...[
-                        const Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: AppColors.textGrey,
-                        ),
-                        const SizedBox(width: 2),
-                        Flexible(
-                          child: Text(
-                            r.deliveryAddress!,
-                            style: const TextStyle(
-                              fontSize: 13,
+                          r.deliveryAddress!.isNotEmpty)
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 14,
                               color: AppColors.textGrey,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                r.deliveryAddress!,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textGrey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
                       if (r.deliveryPhone != null &&
                           r.deliveryPhone!.isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.phone,
-                          size: 14,
-                          color: AppColors.textGrey,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          r.deliveryPhone!,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textGrey,
-                          ),
-                        ),
+                        const SizedBox(height: 3),
+                        // GestureDetector(
+                        //   onTap: () async {
+                        //     final uri = Uri(
+                        //       scheme: 'tel',
+                        //       path: r.deliveryPhone,
+                        //     );
+                        //     if (await canLaunchUrl(uri)) {
+                        //       await launchUrl(uri);
+                        //     }
+                        //   },
+                        //   child: Row(
+                        //     children: [
+                        //       const Icon(
+                        //         Icons.phone,
+                        //         size: 14,
+                        //         color: Color(0xFFE05C6A),
+                        //       ),
+                        //       const SizedBox(width: 2),
+                        //       Text(
+                        //         r.deliveryPhone!,
+                        //         style: const TextStyle(
+                        //           fontSize: 13,
+                        //           color: Color(0xFFE05C6A),
+                        //           decoration: TextDecoration.underline,
+                        //           decorationColor: Color(0xFFE05C6A),
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ],
                   ),

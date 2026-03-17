@@ -39,11 +39,19 @@ class DriverStats {
       name: json['name'] as String?,
       phone: json['phone'] as String? ?? '',
       truckNumber: json['truck_number'] as String?,
-      totalLitersFueled: (json['total_liters_fueled'] as num?)?.toDouble() ?? 0,
+      totalLitersFueled:
+          (json['total_liters_fueled'] as num?)?.toDouble() ??
+          (json['total_volume'] as num?)?.toDouble() ??
+          0,
       totalLitersAllClaims:
-          (json['total_liters_all_claims'] as num?)?.toDouble() ?? 0,
+          (json['total_liters_all_claims'] as num?)?.toDouble() ??
+          (json['total_volume'] as num?)?.toDouble() ??
+          0,
       pendingLiters: (json['pending_liters'] as num?)?.toDouble() ?? 0,
-      redeemableLiters: (json['redeemable_liters'] as num?)?.toDouble() ?? 0,
+      redeemableLiters:
+          (json['redeemable_liters'] as num?)?.toDouble() ??
+          (json['redeemable_volume'] as num?)?.toDouble() ??
+          0,
       totalTransactions: (json['total_transactions'] as num?)?.toInt() ?? 0,
       verifiedTransactions:
           (json['verified_transactions'] as num?)?.toInt() ?? 0,

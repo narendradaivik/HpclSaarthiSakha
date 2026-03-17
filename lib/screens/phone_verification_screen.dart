@@ -348,23 +348,28 @@ class OTPVerificationScreen extends StatefulWidget {
 }
 
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
-  final List<TextEditingController> _otpCtrl = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  // Single controller captures all 6 digits reliably — avoids focus-race
+  // issues that cause dropped digits on fast input and broken backspace.
+  final TextEditingController _otpCtrl = TextEditingController();
+  final FocusNode _otpFocus = FocusNode();
   bool _loading = false;
   bool _resending = false;
   String? _error;
 
+  // Derived display list — always exactly 6 entries (empty string if not typed yet)
+  List<String> get _digits {
+    final raw = _otpCtrl.text;
+    return List.generate(6, (i) => i < raw.length ? raw[i] : '');
+  }
+
   @override
   void dispose() {
-    for (final c in _otpCtrl) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    _otpCtrl.dispose();
+    _otpFocus.dispose();
     super.dispose();
   }
 
-  String get _otpValue => _otpCtrl.map((c) => c.text).join();
+  String get _otpValue => _otpCtrl.text;
 
   Future<void> _verifyOtp() async {
     final otp = _otpValue;
@@ -390,8 +395,8 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       );
     } else {
       setState(() => _error = result.errorMessage ?? 'OTP गलत है।');
-      for (final c in _otpCtrl) c.clear();
-      _focusNodes.first.requestFocus();
+      _otpCtrl.clear();
+      _otpFocus.requestFocus();
     }
   }
 
@@ -533,60 +538,86 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
                   const SizedBox(height: 32),
 
-                  // ── 6 OTP boxes ─────────────────────────────────────────
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(
-                      6,
-                      (i) => SizedBox(
-                        width: 44,
-                        height: 52,
-                        child: TextField(
-                          controller: _otpCtrl[i],
-                          focusNode: _focusNodes[i],
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          maxLength: 1,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: InputDecoration(
-                            counterText: '',
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: _error != null
-                                    ? AppColors.primary
-                                    : const Color(0xFFE5E7EB),
-                                width: 1.2,
+                  // ── 6 OTP boxes (display only) + hidden single TextField ──
+                  // A single hidden TextField captures all input reliably.
+                  // This prevents dropped digits on fast typing and fixes
+                  // backspace not working on empty boxes.
+                  GestureDetector(
+                    onTap: () => _otpFocus.requestFocus(),
+                    child: Stack(
+                      children: [
+                        // Invisible real TextField — sits behind the boxes
+                        Opacity(
+                          opacity: 0,
+                          child: SizedBox(
+                            height: 52,
+                            child: TextField(
+                              controller: _otpCtrl,
+                              focusNode: _otpFocus,
+                              keyboardType: TextInputType.number,
+                              maxLength: 6,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              onChanged: (val) {
+                                setState(() => _error = null);
+                                if (val.length == 6) _verifyOtp();
+                              },
+                              decoration: const InputDecoration(
+                                counterText: '',
                               ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE05C6A),
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: EdgeInsets.zero,
                           ),
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF111827),
-                          ),
-                          onChanged: (val) {
-                            setState(() => _error = null);
-                            if (val.isNotEmpty && i < 5)
-                              _focusNodes[i + 1].requestFocus();
-                            else if (val.isEmpty && i > 0)
-                              _focusNodes[i - 1].requestFocus();
-                            if (i == 5 && val.isNotEmpty) _verifyOtp();
+                        ),
+                        // Visual display boxes — purely decorative, not editable
+                        ValueListenableBuilder<TextEditingValue>(
+                          valueListenable: _otpCtrl,
+                          builder: (context, value, _) {
+                            final digits = List.generate(
+                              6,
+                              (i) => i < value.text.length ? value.text[i] : '',
+                            );
+                            final activebox = value.text.length < 6
+                                ? value.text.length
+                                : 5;
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(6, (i) {
+                                final isFilled = digits[i].isNotEmpty;
+                                final isActive =
+                                    i == activebox && _otpFocus.hasFocus;
+                                return Container(
+                                  width: 44,
+                                  height: 52,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: _error != null
+                                          ? AppColors.primary
+                                          : isActive
+                                          ? const Color(0xFFE05C6A)
+                                          : const Color(0xFFE5E7EB),
+                                      width: isActive ? 2 : 1.2,
+                                    ),
+                                  ),
+                                  child: isFilled
+                                      ? Text(
+                                          digits[i],
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF111827),
+                                          ),
+                                        )
+                                      : null,
+                                );
+                              }),
+                            );
                           },
                         ),
-                      ),
+                      ],
                     ),
                   ),
 

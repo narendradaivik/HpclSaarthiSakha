@@ -2,6 +2,43 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/services.dart';
 
+// ── Shimmer pulse animation wrapper ────────────────────────────────────────
+class _Shimmer extends StatefulWidget {
+  final Widget child;
+  const _Shimmer({required this.child});
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    )..repeat(reverse: true);
+    _anim = Tween<double>(
+      begin: 0.35,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _anim, child: widget.child);
+}
+
 class LenDenScreen extends StatefulWidget {
   const LenDenScreen({super.key});
   @override
@@ -178,31 +215,45 @@ class _LenDenScreenState extends State<LenDenScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                _loading ? '—' : _balance.round().toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.0,
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 5, bottom: 4),
-                                child: Text(
-                                  'L',
-                                  style: TextStyle(
-                                    color: Colors.white60,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
+                          _loading
+                              ? _Shimmer(
+                                  child: Container(
+                                    width: 90,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white24,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                )
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      _balance.round().toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 5,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        'L',
+                                        style: TextStyle(
+                                          color: Colors.white60,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                       const Spacer(),
@@ -400,53 +451,90 @@ class _LenDenScreenState extends State<LenDenScreen> {
     ),
   );
 
-  Widget _shimmer() => ListView.builder(
-    padding: const EdgeInsets.all(12),
-    itemCount: 5,
-    itemBuilder: (_, __) => Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      height: 74,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 14),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(10),
+  Widget _shimmer() => _Shimmer(
+    child: ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: 6,
+      itemBuilder: (_, __) => Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        height: 74,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 14),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 130,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 100,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Container(
+                    width: 80,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Container(width: 130, height: 12, color: Colors.grey.shade200),
-                const SizedBox(height: 5),
-                Container(width: 100, height: 10, color: Colors.grey.shade100),
-                const SizedBox(height: 4),
-                Container(width: 80, height: 9, color: Colors.grey.shade100),
+                Container(
+                  width: 60,
+                  height: 13,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 45,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
               ],
             ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(width: 60, height: 13, color: Colors.grey.shade200),
-              const SizedBox(height: 5),
-              Container(width: 45, height: 10, color: Colors.grey.shade100),
-            ],
-          ),
-          const SizedBox(width: 14),
-        ],
+            const SizedBox(width: 14),
+          ],
+        ),
       ),
     ),
   );
