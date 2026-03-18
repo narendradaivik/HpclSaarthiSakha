@@ -39,7 +39,7 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    # 6. Extract version from pubspec.yaml
+    # 6. Extract version
     - name: Extract version
       id: version
       run: |
@@ -60,7 +60,6 @@ jobs:
 
     # 9. Generate Release Notes
     - name: Generate Notes
-      id: notes
       run: |
         echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
         echo "" >> notes.txt
@@ -78,7 +77,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 11. Notify Teams (Success with APK + Notes)
+    # 11. Notify Teams (Success)
     - name: Notify Teams (Success)
       if: success()
       run: |
@@ -96,6 +95,27 @@ jobs:
       run: |
         curl -H "Content-Type: application/json" \
         -d "{
-          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Check Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+    # 13. Send Email (Success)
+    - name: Send Email
+      if: success()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "🚀 APK Released v${{ steps.version.outputs.version }}"
+        body: |
+          APK Released Successfully!
+
+          Repo: ${{ github.repository }}
+          Version: ${{ steps.version.outputs.version }}
+
+          Download:
+          https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
+        to: manager@gmail.com
+        from: ${{ secrets.EMAIL_USERNAME }}
