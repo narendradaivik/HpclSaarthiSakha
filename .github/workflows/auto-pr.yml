@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Create PR (FIXED)
+      # 2. Create Pull Request
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
@@ -27,9 +27,11 @@ jobs:
             Author: ${{ github.actor }}
             Branch: ${{ github.ref_name }}
 
-          base: main   # target branch
+          base: main
 
-      # 3. Enable Auto Merge ✅
+          reviewers: prabhakardwi   # 👈 ADD THIS
+
+      # 3. Enable Auto Merge
       - name: Enable Auto Merge
         if: steps.cpr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
