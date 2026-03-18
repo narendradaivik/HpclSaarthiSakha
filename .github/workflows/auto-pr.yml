@@ -1,37 +1,98 @@
-name: Auto Create PR
+name: Auto Create PR + Notify
 
 on:
   push:
     branches-ignore:
       - main
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   create-pr:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # IMPORTANT
 
-      # 2. Create Pull Request
+      # 2. Create PR using GitHub CLI ✅
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: auto-pr-${{ github.run_id }}
-          title: "Auto PR - ${{ github.actor }}"
-          body: |
-            🚀 Auto PR created
+        id: create_pr
+        run: |
+          echo "Creating PR..."
 
-            Author: ${{ github.actor }}
-            Branch: ${{ github.ref_name }}
+          PR_URL=$(gh pr create \
+            --base main \
+            --head "${{ github.ref_name }}" \
+            --title "Auto PR - ${{ github.ref_name }}" \
+            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhakardwi" \
+            --reviewer prabhakardwi || echo "PR already exists")
 
-      # 3. Enable Auto Merge ✅ (THIS IS STEP 6)
+          echo "PR_URL=$PR_URL"
+
+          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$' || echo "")
+
+          # If PR already exists, fetch it
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Fetching existing PR..."
+            PR_NUMBER=$(gh pr list \
+              --head "${{ github.ref_name }}" \
+              --base main \
+              --json number \
+              -q '.[0].number')
+          fi
+
+          echo "PR Number = $PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Enable Auto Merge ✅
       - name: Enable Auto Merge
-        uses: peter-evans/enable-pull-request-automerge@v3
+        if: steps.create_pr.outputs.pr_number != ''
+        run: |
+          echo "Enabling auto-merge..."
+          gh pr merge ${{ steps.create_pr.outputs.pr_number }} \
+            --squash \
+            --auto
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4. Notify Microsoft Teams 🚀
+      - name: Notify Teams
+        if: steps.create_pr.outputs.pr_number != ''
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🚀 New Pull Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
+          }" \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      # 5. Send Email via Gmail 📧
+      - name: Send Email
+        if: steps.create_pr.outputs.pr_number != ''
+        uses: dawidd6/action-send-mail@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-          merge-method: squash
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚀 New PR Created - Approval Required"
+          body: |
+            A new Pull Request has been created.
+
+            📦 Repository: ${{ github.repository }}
+            🌿 Branch: ${{ github.ref_name }}
+            👤 Author: ${{ github.actor }}
+
+            🔗 Review here:
+            https://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}
+
+          to: narendra.singh@commdel.net
+          from: ${{ secrets.EMAIL_USERNAME }}
