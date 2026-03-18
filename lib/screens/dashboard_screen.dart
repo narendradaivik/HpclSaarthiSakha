@@ -95,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (!didPop) _onWillPop();
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.background,
         body: _currentIndex == 0
             ? HomeTab(onSwitchTab: (i) => setState(() => _currentIndex = i))
             : _currentIndex == 1
