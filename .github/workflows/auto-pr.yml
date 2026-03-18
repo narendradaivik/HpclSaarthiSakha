@@ -5,76 +5,77 @@ on:
     branches-ignore:
       - main
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   create-pr:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout FULL history (IMPORTANT FIX)
+      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # ✅ VERY IMPORTANT
+          fetch-depth: 0   # IMPORTANT
 
-      # 2. Create PR (FOR CURRENT BRANCH)
+      # 2. Create PR using GitHub CLI ✅
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto PR commit"
-          title: "Auto PR - ${{ github.ref_name }}"
-          body: |
-            🚀 Auto PR created
-
-            Author: ${{ github.actor }}
-            Branch: ${{ github.ref_name }}
-
-            👀 Reviewer: @prabhaardwi
-
-          base: main
-          branch: ${{ github.ref_name }}   # ✅ FIXED
-          reviewers: prabhaardwi
-
-      # 3. Get PR Number (ROBUST WAY)
-      - name: Get PR Number
-        id: pr
+        id: create_pr
         run: |
-          PR_NUMBER=$(gh pr list \
-            --head "${{ github.ref_name }}" \
+          echo "Creating PR..."
+
+          PR_URL=$(gh pr create \
             --base main \
-            --json number \
-            -q '.[0].number')
+            --head "${{ github.ref_name }}" \
+            --title "Auto PR - ${{ github.ref_name }}" \
+            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhaardwi" \
+            --reviewer prabhaardwi || echo "PR already exists")
+
+          echo "PR_URL=$PR_URL"
+
+          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$' || echo "")
+
+          # If PR already exists, fetch it
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Fetching existing PR..."
+            PR_NUMBER=$(gh pr list \
+              --head "${{ github.ref_name }}" \
+              --base main \
+              --json number \
+              -q '.[0].number')
+          fi
 
           echo "PR Number = $PR_NUMBER"
-
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Enable Auto Merge (FIXED)
+      # 3. Enable Auto Merge ✅
       - name: Enable Auto Merge
-        if: steps.pr.outputs.pr_number != ''
+        if: steps.create_pr.outputs.pr_number != ''
         run: |
-          gh pr merge ${{ steps.pr.outputs.pr_number }} \
+          echo "Enabling auto-merge..."
+          gh pr merge ${{ steps.create_pr.outputs.pr_number }} \
             --squash \
             --auto
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Notify Teams 🚀
+      # 4. Notify Microsoft Teams 🚀
       - name: Notify Teams
-        if: always()
+        if: steps.create_pr.outputs.pr_number != ''
         run: |
           curl -H "Content-Type: application/json" \
           -d "{
-            \"text\": \"🚀 PR Update!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.pr_number }}\"
+            \"text\": \"🚀 New Pull Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
           }" \
           ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-      # 6. Send Email 📧
+      # 5. Send Email via Gmail 📧
       - name: Send Email
-        if: always()
+        if: steps.create_pr.outputs.pr_number != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -82,15 +83,16 @@ jobs:
           secure: false
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🚀 PR Created / Updated"
+          subject: "🚀 New PR Created - Approval Required"
           body: |
-            PR created or updated.
+            A new Pull Request has been created.
 
-            Repo: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
+            📦 Repository: ${{ github.repository }}
+            🌿 Branch: ${{ github.ref_name }}
+            👤 Author: ${{ github.actor }}
 
-            Link:
-            https://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.pr_number }}
+            🔗 Review here:
+            https://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}
 
           to: narendra.singh@commdel.net
           from: ${{ secrets.EMAIL_USERNAME }}
