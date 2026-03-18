@@ -10,26 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Create Pull Request
+      # 2. Create PR (FIXED)
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: auto-pr-${{ github.run_id }}
-          title: "Auto PR - ${{ github.actor }}"
+          title: "Auto PR - ${{ github.ref_name }}"
           body: |
             🚀 Auto PR created
 
             Author: ${{ github.actor }}
             Branch: ${{ github.ref_name }}
 
-      # 3. Enable Auto Merge ✅ (THIS IS STEP 6)
+          base: main   # target branch
+
+      # 3. Enable Auto Merge ✅
       - name: Enable Auto Merge
+        if: steps.cpr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
