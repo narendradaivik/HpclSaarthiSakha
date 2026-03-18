@@ -2,8 +2,8 @@ name: Auto Create PR + Notify
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches:
+      - "**"
 
 permissions:
   contents: write
