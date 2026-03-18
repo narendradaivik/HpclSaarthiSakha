@@ -1,81 +1,3 @@
-# name: Flutter Build APK
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     # 1. Checkout code
-#     - uses: actions/checkout@v4
-
-#     # 2. Setup Flutter
-#     - uses: subosito/flutter-action@v2
-#       with:
-#         flutter-version: '3.41.4'
-
-#     # 3. Install dependencies
-#     - name: Install dependencies
-#       run: flutter pub get
-
-#     # 4. Build APK
-#     - name: Build APK
-#       run: flutter build apk --debug
-
-#     # 5. Upload APK (FIXED)
-#     - name: Upload APK
-#       uses: actions/upload-artifact@v4
-#       with:
-#         name: app-apk
-#         path: build/app/outputs/flutter-apk/app-debug.apk
-
-# name: Flutter Build & Release APK
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     # 1. Checkout code
-#     - uses: actions/checkout@v4
-
-#     # 2. Setup Flutter
-#     - uses: subosito/flutter-action@v2
-#       with:
-#         flutter-version: '3.41.4'
-
-#     # 3. Install dependencies
-#     - name: Install dependencies
-#       run: flutter pub get
-
-#     # 4. Build APK
-#     - name: Build APK
-#       run: flutter build apk --debug
-
-#     # 5. Rename APK (important)
-#     - name: Rename APK
-#       run: mv build/app/outputs/flutter-apk/app-debug.apk app.apk
-
-#     # 6. Create Release & Upload APK
-#     - name: Create GitHub Release
-#       uses: softprops/action-gh-release@v2
-#       with:
-#         tag_name: v1.${{ github.run_number }}
-#         name: Release v1.${{ github.run_number }}
-#         files: app.apk
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
 name: Flutter Release APK
 
 permissions:
@@ -92,16 +14,19 @@ jobs:
 
     steps:
     # 1. Checkout
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     # 2. Setup Java
-    - uses: actions/setup-java@v4
+    - name: Setup Java
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
     # 3. Setup Flutter
-    - uses: subosito/flutter-action@v2
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.41.4'
 
@@ -110,18 +35,18 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
 
-    # 5. Install deps
+    # 5. Install dependencies
     - name: Install dependencies
       run: flutter pub get
 
-    # 6. Get version from pubspec.yaml
+    # 6. Extract version from pubspec.yaml
     - name: Extract version
       id: version
       run: |
         VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # 7. Build SIGNED APK ✅ (FIX HERE)
+    # 7. Build Signed APK
     - name: Build Release APK
       run: flutter build apk --release
       env:
@@ -135,6 +60,7 @@ jobs:
 
     # 9. Generate Release Notes
     - name: Generate Notes
+      id: notes
       run: |
         echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
         echo "" >> notes.txt
@@ -142,6 +68,7 @@ jobs:
 
     # 10. Create GitHub Release
     - name: Create GitHub Release
+      id: release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.version.outputs.version }}
@@ -150,3 +77,25 @@ jobs:
         files: app-${{ steps.version.outputs.version }}.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # 11. Notify Teams (Success with APK + Notes)
+    - name: Notify Teams (Success)
+      if: success()
+      run: |
+        NOTES=$(cat notes.txt | sed ':a;N;$!ba;s/\n/\\n/g')
+
+        curl -H "Content-Type: application/json" \
+        -d "{
+          \"text\": \"🚀 APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
+        }" \
+        ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+    # 12. Notify Teams (Failure)
+    - name: Notify Teams (Failure)
+      if: failure()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -d "{
+          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Check Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+        }" \
+        ${{ secrets.TEAMS_WEBHOOK_URL }}
