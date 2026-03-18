@@ -67,7 +67,6 @@ jobs:
 
     # 10. Create GitHub Release
     - name: Create GitHub Release
-      id: release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.version.outputs.version }}
@@ -99,13 +98,14 @@ jobs:
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-    # 13. Send Email (Success)
-    - name: Send Email
+    # 13. Send Email via Outlook
+    - name: Send Email (Outlook)
       if: success()
       uses: dawidd6/action-send-mail@v3
       with:
-        server_address: smtp.gmail.com
-        server_port: 465
+        server_address: smtp.office365.com
+        server_port: 587
+        secure: false
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "🚀 APK Released v${{ steps.version.outputs.version }}"
@@ -117,5 +117,6 @@ jobs:
 
           Download:
           https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
-        to: manager@gmail.com
+
+        to: manager@yourcompany.com
         from: ${{ secrets.EMAIL_USERNAME }}
