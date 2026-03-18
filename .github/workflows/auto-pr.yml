@@ -2,8 +2,8 @@ name: Auto Create PR + Notify
 
 on:
   push:
-    branches:
-      - "**"
+    branches-ignore:
+      - main
 
 permissions:
   contents: write
@@ -30,8 +30,8 @@ jobs:
             --base main \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhaardwi" \
-            --reviewer prabhaardwi || echo "PR already exists")
+            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhakardwi" \
+            --reviewer prabhakardwi || echo "PR already exists")
 
           echo "PR_URL=$PR_URL"
 
