@@ -1,4 +1,4 @@
-name: Auto Create PR
+name: Auto Create PR + Notify
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Create PR + Assign Reviewer
+      # 2. Create Pull Request
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
@@ -27,10 +27,10 @@ jobs:
             Author: ${{ github.actor }}
             Branch: ${{ github.ref_name }}
 
-            👀 Reviewer: @prabhaardwi   # 👈 IMPORTANT (MENTION)
+            👀 Reviewer: @prabhaardwi
 
           base: main
-          reviewers: prabhaardwi        # 👈 IMPORTANT (ASSIGN)
+          reviewers: prabhaardwi
 
       # 3. Enable Auto Merge
       - name: Enable Auto Merge
@@ -40,3 +40,37 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
           merge-method: squash
+
+      # 4. Notify Teams 🚀
+      - name: Notify Teams
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🚀 New Pull Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.cpr.outputs.pull-request-number }}\"
+          }" \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      # 5. Send Email via Gmail 📧
+      - name: Send Email (Gmail)
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚀 New PR Created - Action Required"
+          body: |
+            A new Pull Request has been created.
+
+            Repo: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Author: ${{ github.actor }}
+
+            Review here:
+            https://github.com/${{ github.repository }}/pull/${{ steps.cpr.outputs.pull-request-number }}
+
+          to: narendra.singh@commdel.net
+          from: ${{ secrets.EMAIL_USERNAME }}
