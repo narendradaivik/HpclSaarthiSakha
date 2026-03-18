@@ -4,16 +4,19 @@ permissions:
   contents: write
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types:
+      - closed   # triggers when PR is closed (merged or not)
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true   # ✅ only run if merged
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout
+    # 1. Checkout code
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -67,6 +70,7 @@ jobs:
 
     # 10. Create GitHub Release
     - name: Create GitHub Release
+      id: release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.version.outputs.version }}
@@ -84,7 +88,7 @@ jobs:
 
         curl -H "Content-Type: application/json" \
         -d "{
-          \"text\": \"🚀 APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
+          \"text\": \"🚀 APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
@@ -94,7 +98,7 @@ jobs:
       run: |
         curl -H "Content-Type: application/json" \
         -d "{
-          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
@@ -103,7 +107,7 @@ jobs:
       if: success()
       uses: dawidd6/action-send-mail@v3
       with:
-        server_address: smtp.office365.com
+        server_address: smtp.gmail.com
         server_port: 587
         secure: false
         username: ${{ secrets.EMAIL_USERNAME }}
@@ -115,8 +119,8 @@ jobs:
           Repo: ${{ github.repository }}
           Version: ${{ steps.version.outputs.version }}
 
-          Download:
+          Download APK:
           https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
 
-        to: manager@yourcompany.com
+        to: prabhakar.dwivedi@commdel.net
         from: ${{ secrets.EMAIL_USERNAME }}
