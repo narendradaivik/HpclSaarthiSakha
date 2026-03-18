@@ -10,16 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # 1. Checkout FULL history (IMPORTANT FIX)
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # ✅ VERY IMPORTANT
 
-      # 2. Create Pull Request
+      # 2. Create PR (FOR CURRENT BRANCH)
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Auto PR commit"
           title: "Auto PR - ${{ github.ref_name }}"
           body: |
             🚀 Auto PR created
@@ -30,48 +33,47 @@ jobs:
             👀 Reviewer: @prabhaardwi
 
           base: main
+          branch: ${{ github.ref_name }}   # ✅ FIXED
           reviewers: prabhaardwi
 
-      # 3. Debug PR Number (VERY IMPORTANT)
-      - name: Debug PR Number
-        run: echo "PR Number = ${{ steps.cpr.outputs.pull-request-number }}"
-
-      # 4. Set PR Number (handle empty case)
-      - name: Set PR Number
+      # 3. Get PR Number (ROBUST WAY)
+      - name: Get PR Number
         id: pr
         run: |
-          if [ -z "${{ steps.cpr.outputs.pull-request-number }}" ]; then
-            echo "PR not created, trying to fetch existing PR..."
+          PR_NUMBER=$(gh pr list \
+            --head "${{ github.ref_name }}" \
+            --base main \
+            --json number \
+            -q '.[0].number')
 
-            PR_NUMBER=$(gh pr list --head "${{ github.ref_name }}" --json number -q '.[0].number')
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          else
-            echo "pr_number=${{ steps.cpr.outputs.pull-request-number }}" >> $GITHUB_OUTPUT
-          fi
+          echo "PR Number = $PR_NUMBER"
+
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Enable Auto Merge
+      # 4. Enable Auto Merge (FIXED)
       - name: Enable Auto Merge
         if: steps.pr.outputs.pr_number != ''
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.pr.outputs.pr_number }}
-          merge-method: squash
+        run: |
+          gh pr merge ${{ steps.pr.outputs.pr_number }} \
+            --squash \
+            --auto
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6. Notify Teams 🚀
+      # 5. Notify Teams 🚀
       - name: Notify Teams
         if: always()
         run: |
           curl -H "Content-Type: application/json" \
           -d "{
-            \"text\": \"🚀 Pull Request Update!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.pr_number }}\"
+            \"text\": \"🚀 PR Update!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.pr_number }}\"
           }" \
           ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-      # 7. Send Email via Gmail 📧
-      - name: Send Email (Gmail)
+      # 6. Send Email 📧
+      - name: Send Email
         if: always()
         uses: dawidd6/action-send-mail@v3
         with:
@@ -80,15 +82,14 @@ jobs:
           secure: false
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🚀 PR Created / Updated - Action Required"
+          subject: "🚀 PR Created / Updated"
           body: |
-            A Pull Request has been created or updated.
+            PR created or updated.
 
             Repo: ${{ github.repository }}
             Branch: ${{ github.ref_name }}
-            Author: ${{ github.actor }}
 
-            Review here:
+            Link:
             https://github.com/${{ github.repository }}/pull/${{ steps.pr.outputs.pr_number }}
 
           to: narendra.singh@commdel.net
