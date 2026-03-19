@@ -4,12 +4,14 @@ permissions:
   contents: write
 
 on:
-  push:
+  pull_request:
     branches:
-      - main   # ✅ triggers AFTER PR merge
+      - main
+    
 
 jobs:
   build:
+   
     runs-on: ubuntu-latest
 
     steps:
@@ -61,12 +63,13 @@ jobs:
     # 9. Generate Release Notes
     - name: Generate Notes
       run: |
-        echo "🚀 SAARTHI SAKHA APP Release ${{ steps.version.outputs.version }}" > notes.txt
+        echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
         echo "" >> notes.txt
         git log -5 --pretty=format:"- %s" >> notes.txt
 
     # 10. Create GitHub Release
     - name: Create GitHub Release
+      id: release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.version.outputs.version }}
@@ -98,8 +101,8 @@ jobs:
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-    # 13. Send Email
-    - name: Send Email
+    # 13. Send Email via Outlook
+    - name: Send Email (Outlook)
       if: success()
       uses: dawidd6/action-send-mail@v3
       with:
@@ -110,7 +113,7 @@ jobs:
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "🚀 SAARTHI SAKHA APP Released v${{ steps.version.outputs.version }}"
         body: |
-          SAARTHI SAKHA APK Released Successfully!
+          SAARTHI SAKHA APP Released Successfully!
 
           Repo: ${{ github.repository }}
           Version: ${{ steps.version.outputs.version }}

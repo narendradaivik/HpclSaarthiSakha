@@ -1,0 +1,33 @@
+name: Flutter Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
+
+      # 3. Install deps
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4. Analyze code (lint)
+      - name: Analyze
+        run: flutter analyze
+
+      # 5. Run tests
+      - name: Run Tests
+        run: flutter test
