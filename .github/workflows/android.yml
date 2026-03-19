@@ -4,14 +4,12 @@ permissions:
   contents: write
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
-    
+      - main   # ✅ triggers AFTER PR merge
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true   # ✅ only run if merged
     runs-on: ubuntu-latest
 
     steps:
@@ -63,13 +61,12 @@ jobs:
     # 9. Generate Release Notes
     - name: Generate Notes
       run: |
-        echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
+        echo "🚀 SAARTHI SAKHA APP Release ${{ steps.version.outputs.version }}" > notes.txt
         echo "" >> notes.txt
         git log -5 --pretty=format:"- %s" >> notes.txt
 
     # 10. Create GitHub Release
     - name: Create GitHub Release
-      id: release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.version.outputs.version }}
@@ -101,8 +98,8 @@ jobs:
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-    # 13. Send Email via Outlook
-    - name: Send Email (Outlook)
+    # 13. Send Email
+    - name: Send Email
       if: success()
       uses: dawidd6/action-send-mail@v3
       with:
