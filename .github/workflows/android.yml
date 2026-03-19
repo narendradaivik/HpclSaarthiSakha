@@ -87,7 +87,7 @@ jobs:
 
         curl -H "Content-Type: application/json" \
         -d "{
-          \"text\": \"🚀 SAARTHI SAKHA APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
+          \"text\": \"🚀 SAARTHI SAKHA APP Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
@@ -111,9 +111,9 @@ jobs:
         secure: false
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "🚀 APK Released v${{ steps.version.outputs.version }}"
+        subject: "🚀 SAARTHI SAKHA APP Released v${{ steps.version.outputs.version }}"
         body: |
-          APK Released Successfully!
+          SAARTHI SAKHA APP Released Successfully!
 
           Repo: ${{ github.repository }}
           Version: ${{ steps.version.outputs.version }}
