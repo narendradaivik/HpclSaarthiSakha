@@ -1,10 +1,13 @@
 name: Flutter Tests
 
 on:
+  push:
+    branches:
+      - "**"
   pull_request:
     branches:
       - main
-  workflow_dispatch:   # 👈 IMPORTANT (adds manual trigger)
+  workflow_dispatch:
 
 jobs:
   test:
@@ -13,10 +16,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache Flutter
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.4'
 
       - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter test
+
+      - name: Analyze (strict)
+        run: flutter analyze --fatal-infos
+
+      - name: Run Tests
+        run: flutter test
