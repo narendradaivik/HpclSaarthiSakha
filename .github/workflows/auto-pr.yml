@@ -30,8 +30,8 @@ jobs:
             --base main \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhakardwi" \
-            --reviewer prabhakardwi || echo "PR already exists")
+            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @nnarrendra" \
+            --reviewer nnarrendra || echo "PR already exists")
 
           echo "PR_URL=$PR_URL"
 
