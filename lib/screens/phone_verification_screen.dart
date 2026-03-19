@@ -86,7 +86,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     // PopScope intercepts back — shows "press again to exit" toast instead of blank screen
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _onBackPressed();
       },
       child: Scaffold(
@@ -161,7 +161,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -293,7 +293,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                           backgroundColor: const Color(0xFFE05C6A),
                           disabledBackgroundColor: const Color(
                             0xFFE05C6A,
-                          ).withOpacity(0.5),
+                          ).withValues(alpha: 0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -353,14 +353,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   final TextEditingController _otpCtrl = TextEditingController();
   final FocusNode _otpFocus = FocusNode();
   bool _loading = false;
-  bool _resending = false;
   String? _error;
-
-  // Derived display list — always exactly 6 entries (empty string if not typed yet)
-  List<String> get _digits {
-    final raw = _otpCtrl.text;
-    return List.generate(6, (i) => i < raw.length ? raw[i] : '');
-  }
 
   @override
   void dispose() {
@@ -398,29 +391,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       _otpCtrl.clear();
       _otpFocus.requestFocus();
     }
-  }
-
-  Future<void> _resendOtp() async {
-    setState(() {
-      _resending = true;
-      _error = null;
-    });
-    final result = await AuthService.instance.sendOtp('+91${widget.phone}');
-    if (!mounted) return;
-    setState(() => _resending = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          result.success
-              ? result.data?.message ?? 'OTP दोबारा भेजा गया!'
-              : result.errorMessage ?? 'समस्या हुई।',
-        ),
-        backgroundColor: result.success
-            ? AppColors.redeemGreen
-            : AppColors.primary,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
@@ -504,7 +474,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
+                          color: Colors.black.withValues(alpha: 0.06),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -659,7 +629,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         backgroundColor: const Color(0xFFE05C6A),
                         disabledBackgroundColor: const Color(
                           0xFFE05C6A,
-                        ).withOpacity(0.5),
+                        ).withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),

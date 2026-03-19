@@ -265,6 +265,7 @@ class DriverService {
       queryParams: {'select': '*', 'limit': '$limit', 'offset': '$offset'},
       useRestBase: false,
     );
+    // ignore: avoid_print
     print(response);
     if (!response.success) {
       return ApiResponse.error(
