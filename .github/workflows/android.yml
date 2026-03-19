@@ -6,7 +6,7 @@ permissions:
 on:
   pull_request: 
     branches:
-      - main   # ✅ triggers AFTER PR merge
+      - main   # ✅ triggers AFTER PR mergeee
 
 jobs:
   build:
