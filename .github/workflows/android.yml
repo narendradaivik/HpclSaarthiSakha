@@ -7,121 +7,66 @@ on:
   pull_request:
     branches:
       - main
-    
+  push:
+    branches:
+      - main
 
 jobs:
   build:
-   
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # 2. Setup Java
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    # 3. Setup Flutter
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.41.4'
+      - name: Cache Flutter
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
 
-        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
 
-    # 4. Decode Keystore
-    - name: Decode Keystore
-      run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
+      - name: Install dependencies
+        run: flutter pub get
 
-    # 5. Install dependencies
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-    # 6. Extract version
-    - name: Extract version
-      id: version
-      run: |
-        VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
 
-    # 7. Build Signed APK
-    - name: Build Release APK
-      run: flutter build apk --release
-      env:
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # 8. Rename APK
-    - name: Rename APK
-      run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
+      - name: Build Release APK
+        run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-    # 9. Generate Release Notes
-    - name: Generate Notes
-      run: |
-        echo "🚀 Release ${{ steps.version.outputs.version }}" > notes.txt
-        echo "" >> notes.txt
-        git log -5 --pretty=format:"- %s" >> notes.txt
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
 
-    # 10. Create GitHub Release
-    - name: Create GitHub Release
-      id: release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.version.outputs.version }}
-        name: Release v${{ steps.version.outputs.version }}
-        body_path: notes.txt
-        files: app-${{ steps.version.outputs.version }}.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # 11. Notify Teams (Success)
-    - name: Notify Teams (Success)
-      if: success()
-      run: |
-        NOTES=$(cat notes.txt | sed ':a;N;$!ba;s/\n/\\n/g')
-
-        curl -H "Content-Type: application/json" \
-        -d "{
-          \"text\": \"🚀 SAARTHI SAKHA APP Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
-        }" \
-        ${{ secrets.TEAMS_WEBHOOK_URL }}
-
-    # 12. Notify Teams (Failure)
-    - name: Notify Teams (Failure)
-      if: failure()
-      run: |
-        curl -H "Content-Type: application/json" \
-        -d "{
-          \"text\": \"❌ Build Failed!\\n\\n📦 Repo: ${{ github.repository }}\\n👤 By: ${{ github.actor }}\\n\\n🔍 Logs:\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-        }" \
-        ${{ secrets.TEAMS_WEBHOOK_URL }}
-
-    # 13. Send Email via Outlook
-    - name: Send Email (Outlook)
-      if: success()
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 587
-        secure: false
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "🚀 SAARTHI SAKHA APP Released v${{ steps.version.outputs.version }}"
-        body: |
-          SAARTHI SAKHA APP Released Successfully!
-
-          Repo: ${{ github.repository }}
-          Version: ${{ steps.version.outputs.version }}
-
-          Download APK:
-          https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
-
-        to: prabhakar.dwivedi@commdel.net
-        from: ${{ secrets.EMAIL_USERNAME }}
+      # 🚀 Release ONLY on main push
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: app-${{ steps.version.outputs.version }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
