@@ -3,6 +3,7 @@ import 'package:highway_rewards/screens/phone_verification_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/services.dart';
 import 'len_den_screen.dart';
+import 'qr_scan_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -73,9 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ? sess.driverName
         : 'ड्राइवर';
     final phone = driver?.phone ?? sess.driverPhone;
-    final truck =
-        driver?.truckNumber ??
-        (sess.truckNumber.isNotEmpty ? sess.truckNumber : null);
     final since = driver?.memberSince != null
         ? _fmtSince(driver!.memberSince!)
         : sess.memberSince.isNotEmpty
@@ -86,13 +84,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final txns = driver?.totalTransactions ?? sess.totalTransactions;
     // Format with 2 decimals to show 221.05, 21.05 etc.
     // Round to nearest whole: 21.05 → 21, 21.54 → 22
-    final total = (totalRaw is double ? totalRaw : (totalRaw as num).toDouble())
-        .round()
-        .toString();
-    final redeem =
-        (redeemRaw is double ? redeemRaw : (redeemRaw as num).toDouble())
-            .round()
-            .toString();
+    final total = totalRaw.round().toString();
+    final redeem = redeemRaw.round().toString();
     final level = driver?.levelLabel ?? sess.levelLabel;
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'D';
     final vehicles = _profile?.vehicles ?? [];
@@ -146,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -161,7 +154,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor: Colors.white.withOpacity(0.2),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.2,
+                              ),
                               child: Text(
                                 initial,
                                 style: const TextStyle(
@@ -209,10 +204,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.amber.withOpacity(0.2),
+                                      color: Colors.amber.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: Colors.amber.withOpacity(0.4),
+                                        color: Colors.amber.withValues(
+                                          alpha: 0.4,
+                                        ),
                                       ),
                                     ),
                                     child: Row(
@@ -508,7 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       borderRadius: BorderRadius.circular(14),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.10),
+          color: Colors.black.withValues(alpha: 0.10),
           blurRadius: 14,
           offset: const Offset(0, 4),
         ),
@@ -637,7 +636,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

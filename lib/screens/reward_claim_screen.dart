@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -70,11 +68,12 @@ class _RewardClaimScreenState extends State<RewardClaimScreen> {
       }
 
       if (perm == LocationPermission.denied) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _locationLoading = false;
             _locationGranted = false;
           });
+        }
         return;
       }
 
@@ -134,8 +133,9 @@ class _RewardClaimScreenState extends State<RewardClaimScreen> {
         setState(() => _croppedFile = cropped);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         _showError('फ़ोटो नहीं मिली। कृपया अनुमति दें और पुनः प्रयास करें।');
+      }
     }
   }
 
@@ -697,9 +697,9 @@ class _SourceTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.06),
+          color: AppColors.primary.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -728,7 +728,7 @@ class _DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.35)
+      ..color = AppColors.primary.withValues(alpha: 0.35)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     final path = Path()
@@ -755,7 +755,6 @@ class _DashedBorderPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter o) => false;
 }
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CROP SCREEN
@@ -792,7 +791,7 @@ class _CropScreenState extends State<_CropScreen> {
   static const double _minSide = 60.0;
   // How fat the corner / edge hit zones are (screen px)
   static const double _cornerZone = 52.0;
-  static const double _edgeZone   = 36.0;
+  static const double _edgeZone = 36.0;
 
   @override
   void initState() {
@@ -810,8 +809,8 @@ class _CropScreenState extends State<_CropScreen> {
 
   Future<void> _decodeImage() async {
     final bytes = await widget.imageFile.readAsBytes();
-    final codec  = await ui.instantiateImageCodec(bytes);
-    final frame  = await codec.getNextFrame();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
     if (mounted) setState(() => _srcImage = frame.image);
   }
 
@@ -821,16 +820,12 @@ class _CropScreenState extends State<_CropScreen> {
     if (_srcImage == null) return Rect.fromLTWH(0, 0, area.width, area.height);
     final iw = _srcImage!.width.toDouble();
     final ih = _srcImage!.height.toDouble();
-    final s  = (area.width / iw) < (area.height / ih)
-        ? area.width  / iw
+    final s = (area.width / iw) < (area.height / ih)
+        ? area.width / iw
         : area.height / ih;
     final fw = iw * s;
     final fh = ih * s;
-    return Rect.fromLTWH(
-      (area.width  - fw) / 2,
-      (area.height - fh) / 2,
-      fw, fh,
-    );
+    return Rect.fromLTWH((area.width - fw) / 2, (area.height - fh) / 2, fw, fh);
   }
 
   // ── 3. Initialise crop box (once) ─────────────────────────────────────────
@@ -840,12 +835,12 @@ class _CropScreenState extends State<_CropScreen> {
     _cropInitialized = true;
     final ir = _computeImageRect(area);
     _imageDisplayRect = ir;
-    final padX = ir.width  * 0.07;
+    final padX = ir.width * 0.07;
     final padY = ir.height * 0.07;
     _cropNotifier.value = Rect.fromLTRB(
-      ir.left   + padX,
-      ir.top    + padY,
-      ir.right  - padX,
+      ir.left + padX,
+      ir.top + padY,
+      ir.right - padX,
       ir.bottom - padY,
     );
   }
@@ -855,12 +850,12 @@ class _CropScreenState extends State<_CropScreen> {
   // Clamp a rect so it stays inside _imageDisplayRect
   Rect _clampToImage(Rect r) {
     final ir = _imageDisplayRect;
-    double l = r.left.clamp(ir.left, ir.right  - _minSide);
-    double t = r.top .clamp(ir.top,  ir.bottom - _minSide);
-    double ri = r.right .clamp(ir.left + _minSide, ir.right);
-    double b  = r.bottom.clamp(ir.top  + _minSide, ir.bottom);
+    double l = r.left.clamp(ir.left, ir.right - _minSide);
+    double t = r.top.clamp(ir.top, ir.bottom - _minSide);
+    double ri = r.right.clamp(ir.left + _minSide, ir.right);
+    double b = r.bottom.clamp(ir.top + _minSide, ir.bottom);
     if (ri - l < _minSide) ri = l + _minSide;
-    if (b  - t < _minSide) b  = t + _minSide;
+    if (b - t < _minSide) b = t + _minSide;
     return Rect.fromLTRB(l, t, ri, b);
   }
 
@@ -871,15 +866,15 @@ class _CropScreenState extends State<_CropScreen> {
     final ez = _edgeZone;
 
     // Corners first (largest priority)
-    if ((p - r.topLeft    ).distance < cz) return _Zone.tl;
-    if ((p - r.topRight   ).distance < cz) return _Zone.tr;
-    if ((p - r.bottomLeft ).distance < cz) return _Zone.bl;
+    if ((p - r.topLeft).distance < cz) return _Zone.tl;
+    if ((p - r.topRight).distance < cz) return _Zone.tr;
+    if ((p - r.bottomLeft).distance < cz) return _Zone.bl;
     if ((p - r.bottomRight).distance < cz) return _Zone.br;
 
     // Edge midpoints
     final tMid = Offset((r.left + r.right) / 2, r.top);
     final bMid = Offset((r.left + r.right) / 2, r.bottom);
-    final lMid = Offset(r.left,  (r.top + r.bottom) / 2);
+    final lMid = Offset(r.left, (r.top + r.bottom) / 2);
     final rMid = Offset(r.right, (r.top + r.bottom) / 2);
     if ((p - tMid).distance < ez) return _Zone.top;
     if ((p - bMid).distance < ez) return _Zone.bottom;
@@ -893,9 +888,9 @@ class _CropScreenState extends State<_CropScreen> {
   }
 
   void _applyDelta(_Zone zone, Offset delta) {
-    final r   = _cropNotifier.value;
-    final dx  = delta.dx;
-    final dy  = delta.dy;
+    final r = _cropNotifier.value;
+    final dx = delta.dx;
+    final dy = delta.dy;
     Rect next;
     switch (zone) {
       case _Zone.move:
@@ -938,27 +933,41 @@ class _CropScreenState extends State<_CropScreen> {
     setState(() => _isSaving = true);
     try {
       final crop = _cropNotifier.value;
-      final ir   = _imageDisplayRect;
+      final ir = _imageDisplayRect;
 
       // Map screen crop rect → source image pixel rect
-      final scaleX = _srcImage!.width  / ir.width;
+      final scaleX = _srcImage!.width / ir.width;
       final scaleY = _srcImage!.height / ir.height;
 
-      final px = ((crop.left   - ir.left) * scaleX).round().clamp(0, _srcImage!.width  - 1);
-      final py = ((crop.top    - ir.top ) * scaleY).round().clamp(0, _srcImage!.height - 1);
-      final pw = (crop.width  * scaleX).round().clamp(1, _srcImage!.width  - px);
-      final ph = (crop.height * scaleY).round().clamp(1, _srcImage!.height - py);
+      final px = ((crop.left - ir.left) * scaleX).round().clamp(
+        0,
+        _srcImage!.width - 1,
+      );
+      final py = ((crop.top - ir.top) * scaleY).round().clamp(
+        0,
+        _srcImage!.height - 1,
+      );
+      final pw = (crop.width * scaleX).round().clamp(1, _srcImage!.width - px);
+      final ph = (crop.height * scaleY).round().clamp(
+        1,
+        _srcImage!.height - py,
+      );
 
       final recorder = ui.PictureRecorder();
-      final canvas   = Canvas(recorder);
+      final canvas = Canvas(recorder);
       canvas.drawImageRect(
         _srcImage!,
-        Rect.fromLTWH(px.toDouble(), py.toDouble(), pw.toDouble(), ph.toDouble()),
+        Rect.fromLTWH(
+          px.toDouble(),
+          py.toDouble(),
+          pw.toDouble(),
+          ph.toDouble(),
+        ),
         Rect.fromLTWH(0, 0, pw.toDouble(), ph.toDouble()),
         Paint(),
       );
-      final picture  = recorder.endRecording();
-      final cropped  = await picture.toImage(pw, ph);
+      final picture = recorder.endRecording();
+      final cropped = await picture.toImage(pw, ph);
       final byteData = await cropped.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) throw Exception('encode failed');
 
@@ -971,7 +980,9 @@ class _CropScreenState extends State<_CropScreen> {
       if (mounted) {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('क्रॉप करने में समस्या। पुनः प्रयास करें।')),
+          const SnackBar(
+            content: Text('क्रॉप करने में समस्या। पुनः प्रयास करें।'),
+          ),
         );
       }
     }
@@ -987,8 +998,10 @@ class _CropScreenState extends State<_CropScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A4E),
-        title: const Text('बिल क्रॉप करें',
-            style: TextStyle(color: Colors.white, fontSize: 17)),
+        title: const Text(
+          'बिल क्रॉप करें',
+          style: TextStyle(color: Colors.white, fontSize: 17),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -998,60 +1011,71 @@ class _CropScreenState extends State<_CropScreen> {
             onPressed: (_isSaving || _srcImage == null) ? null : _doCrop,
             child: _isSaving
                 ? const SizedBox(
-                    width: 20, height: 20,
+                    width: 20,
+                    height: 20,
                     child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2))
-                : const Text('ठीक है',
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text(
+                    'ठीक है',
                     style: TextStyle(
-                        color: Colors.white, fontSize: 17,
-                        fontWeight: FontWeight.bold)),
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ],
       ),
       body: _srcImage == null
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white))
-          : LayoutBuilder(builder: (ctx, bc) {
-              final area = Size(bc.maxWidth, bc.maxHeight);
-              _imageDisplayRect = _computeImageRect(area);
-              _initCrop(area);
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          : LayoutBuilder(
+              builder: (ctx, bc) {
+                final area = Size(bc.maxWidth, bc.maxHeight);
+                _imageDisplayRect = _computeImageRect(area);
+                _initCrop(area);
 
-              return Listener(
-                // Raw pointer events — bypasses gesture arena entirely
-                behavior: HitTestBehavior.opaque,
-                onPointerDown: (e) {
-                  _activeZone = _hitZone(e.localPosition);
-                },
-                onPointerMove: (e) {
-                  if (_activeZone != null && _activeZone != _Zone.none) {
-                    _applyDelta(_activeZone!, e.delta);
-                  }
-                },
-                onPointerUp:   (_) => _activeZone = null,
-                onPointerCancel: (_) => _activeZone = null,
-                child: Stack(children: [
-                  // Static image — no InteractiveViewer (that steals gestures)
-                  Positioned.fill(
-                    child: Image.file(
-                      widget.imageFile,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  // Overlay + handles redrawn via ValueNotifier (no setState)
-                  AnimatedBuilder(
-                    animation: _cropNotifier,
-                    builder: (_, __) => CustomPaint(
-                      size: area,
-                      painter: _CropOverlayPainter(
-                        cropRect:    _cropNotifier.value,
-                        cornerZone:  _cornerZone,
-                        edgeZone:    _edgeZone,
+                return Listener(
+                  // Raw pointer events — bypasses gesture arena entirely
+                  behavior: HitTestBehavior.opaque,
+                  onPointerDown: (e) {
+                    _activeZone = _hitZone(e.localPosition);
+                  },
+                  onPointerMove: (e) {
+                    if (_activeZone != null && _activeZone != _Zone.none) {
+                      _applyDelta(_activeZone!, e.delta);
+                    }
+                  },
+                  onPointerUp: (_) => _activeZone = null,
+                  onPointerCancel: (_) => _activeZone = null,
+                  child: Stack(
+                    children: [
+                      // Static image — no InteractiveViewer (that steals gestures)
+                      Positioned.fill(
+                        child: Image.file(
+                          widget.imageFile,
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                    ),
+                      // Overlay + handles redrawn via ValueNotifier (no setState)
+                      AnimatedBuilder(
+                        animation: _cropNotifier,
+                        builder: (_, _i) => CustomPaint(
+                          size: area,
+                          painter: _CropOverlayPainter(
+                            cropRect: _cropNotifier.value,
+                            cornerZone: _cornerZone,
+                            edgeZone: _edgeZone,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
-              );
-            }),
+                );
+              },
+            ),
     );
   }
 }
@@ -1062,7 +1086,7 @@ enum _Zone { none, move, tl, tr, bl, br, top, bottom, left, right }
 // ── Overlay painter ───────────────────────────────────────────────────────────
 // Draws: dark mask, bright border, thirds grid, corner L-handles, edge mid-dots
 class _CropOverlayPainter extends CustomPainter {
-  final Rect   cropRect;
+  final Rect cropRect;
   final double cornerZone;
   final double edgeZone;
   const _CropOverlayPainter({
@@ -1079,24 +1103,24 @@ class _CropOverlayPainter extends CustomPainter {
         ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
         ..addRect(cropRect)
         ..fillType = PathFillType.evenOdd,
-      Paint()..color = Colors.black.withOpacity(0.6),
+      Paint()..color = Colors.black.withValues(alpha: 0.6),
     );
 
     // 2. Bright border
     canvas.drawRect(
       cropRect,
       Paint()
-        ..color  = Colors.white
-        ..style  = PaintingStyle.stroke
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
 
     // 3. Rule-of-thirds grid (subtle)
     final gridPaint = Paint()
-      ..color       = Colors.white.withOpacity(0.30)
+      ..color = Colors.white.withValues(alpha: 0.30)
       ..strokeWidth = 0.8;
     for (int i = 1; i < 3; i++) {
-      final xOff = cropRect.width  / 3 * i;
+      final xOff = cropRect.width / 3 * i;
       final yOff = cropRect.height / 3 * i;
       canvas.drawLine(
         Offset(cropRect.left + xOff, cropRect.top),
@@ -1112,30 +1136,40 @@ class _CropOverlayPainter extends CustomPainter {
 
     // 4. Bold L-shaped corner handles
     final cornerPaint = Paint()
-      ..color      = Colors.white
+      ..color = Colors.white
       ..strokeWidth = 4.0
-      ..style      = PaintingStyle.stroke
-      ..strokeCap  = StrokeCap.square;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square;
     const armLen = 24.0;
     for (final pt in [
-      cropRect.topLeft, cropRect.topRight,
-      cropRect.bottomLeft, cropRect.bottomRight,
+      cropRect.topLeft,
+      cropRect.topRight,
+      cropRect.bottomLeft,
+      cropRect.bottomRight,
     ]) {
-      final onRight  = (pt.dx - cropRect.right ).abs() < 1;
+      final onRight = (pt.dx - cropRect.right).abs() < 1;
       final onBottom = (pt.dy - cropRect.bottom).abs() < 1;
-      canvas.drawLine(pt, pt + Offset(onRight  ? -armLen : armLen, 0), cornerPaint);
-      canvas.drawLine(pt, pt + Offset(0, onBottom ? -armLen : armLen), cornerPaint);
+      canvas.drawLine(
+        pt,
+        pt + Offset(onRight ? -armLen : armLen, 0),
+        cornerPaint,
+      );
+      canvas.drawLine(
+        pt,
+        pt + Offset(0, onBottom ? -armLen : armLen),
+        cornerPaint,
+      );
     }
 
     // 5. Edge mid-point dots (visual affordance)
     final dotPaint = Paint()..color = Colors.white;
     const dotR = 5.0;
-    final cx = (cropRect.left + cropRect.right)  / 2;
-    final cy = (cropRect.top  + cropRect.bottom) / 2;
+    final cx = (cropRect.left + cropRect.right) / 2;
+    final cy = (cropRect.top + cropRect.bottom) / 2;
     for (final pt in [
-      Offset(cx,            cropRect.top),
-      Offset(cx,            cropRect.bottom),
-      Offset(cropRect.left,  cy),
+      Offset(cx, cropRect.top),
+      Offset(cx, cropRect.bottom),
+      Offset(cropRect.left, cy),
       Offset(cropRect.right, cy),
     ]) {
       canvas.drawCircle(pt, dotR, dotPaint);
@@ -1143,6 +1177,5 @@ class _CropOverlayPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_CropOverlayPainter old) =>
-      old.cropRect != cropRect;
+  bool shouldRepaint(_CropOverlayPainter old) => old.cropRect != cropRect;
 }

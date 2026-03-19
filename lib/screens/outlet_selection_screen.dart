@@ -12,9 +12,12 @@ double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
   const r = 6371.0;
   final dLat = (lat2 - lat1) * pi / 180;
   final dLon = (lon2 - lon1) * pi / 180;
-  final a = sin(dLat / 2) * sin(dLat / 2) +
-      cos(lat1 * pi / 180) * cos(lat2 * pi / 180) *
-          sin(dLon / 2) * sin(dLon / 2);
+  final a =
+      sin(dLat / 2) * sin(dLat / 2) +
+      cos(lat1 * pi / 180) *
+          cos(lat2 * pi / 180) *
+          sin(dLon / 2) *
+          sin(dLon / 2);
   return r * 2 * atan2(sqrt(a), sqrt(1 - a));
 }
 
@@ -88,7 +91,9 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
         perm = await Geolocator.requestPermission();
       }
       if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) return;
+          perm == LocationPermission.deniedForever) {
+        return;
+      }
 
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -138,29 +143,43 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
               gradient: AppGradients.headerGradient,
             ),
             padding: const EdgeInsets.only(
-                top: 50, left: 16, right: 16, bottom: 20),
+              top: 50,
+              left: 16,
+              right: 16,
+              bottom: 20,
+            ),
             child: Row(
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.arrow_back,
-                      color: Colors.white, size: 24),
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 12),
-                Image.asset('assets/images/sarathi-sakha-logo.png',
-                    height: 36, fit: BoxFit.contain),
+                Image.asset(
+                  'assets/images/sarathi-sakha-logo.png',
+                  height: 36,
+                  fit: BoxFit.contain,
+                ),
                 const SizedBox(width: 12),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('आउटलेट चुनें',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                    Text('रिडीम के लिए HPCL पंप चुनें',
-                        style:
-                            TextStyle(fontSize: 15, color: Colors.white70)),
+                    Text(
+                      'आउटलेट चुनें',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'रिडीम के लिए HPCL पंप चुनें',
+                      style: TextStyle(fontSize: 15, color: Colors.white70),
+                    ),
                   ],
                 ),
               ],
@@ -187,21 +206,28 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: widget.reward['image_url'] != null &&
+                    child:
+                        widget.reward['image_url'] != null &&
                             (widget.reward['image_url'] as String).isNotEmpty
                         ? Image.network(
                             widget.reward['image_url'] as String,
-                            width: 40, height: 40, fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Image.asset(
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _a, _b) => Image.asset(
                               widget.reward['icon'] as String? ??
                                   'assets/images/default_gift.png',
-                              width: 40, height: 40, fit: BoxFit.contain,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.contain,
                             ),
                           )
                         : Image.asset(
                             widget.reward['icon'] as String? ??
                                 'assets/images/default_gift.png',
-                            width: 40, height: 40, fit: BoxFit.contain,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.contain,
                           ),
                   ),
                 ),
@@ -212,24 +238,32 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
                     Text(
                       widget.reward['name_hi'] as String,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     Text(
                       widget.reward['name'] as String,
                       style: const TextStyle(
-                          fontSize: 15, color: AppColors.textGrey),
+                        fontSize: 15,
+                        color: AppColors.textGrey,
+                      ),
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.star,
-                            color: AppColors.primary, size: 14),
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.primary,
+                          size: 14,
+                        ),
                         const SizedBox(width: 2),
                         Text(
                           '${widget.reward['points']} लीटर',
                           style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold),
+                            fontSize: 13,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -242,73 +276,103 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
           // ── Count bar + location pill ───────────────────────────────────────
           if (!_isLoading && _errorMessage == null)
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on,
-                      color: AppColors.textGrey, size: 16),
+                  const Icon(
+                    Icons.location_on,
+                    color: AppColors.textGrey,
+                    size: 16,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     'उपलब्ध HPCL आउटलेट (${_entries.length})',
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.grey),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
                   ),
                   const Spacer(),
                   // Location status pill
                   if (_locationLoading)
-                    const Row(children: [
-                      SizedBox(
+                    const Row(
+                      children: [
+                        SizedBox(
                           width: 12,
                           height: 12,
                           child: CircularProgressIndicator(
-                              strokeWidth: 1.5,
-                              color: AppColors.textGrey)),
-                      SizedBox(width: 6),
-                      Text('लोकेशन…',
+                            strokeWidth: 1.5,
+                            color: AppColors.textGrey,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'लोकेशन…',
                           style: TextStyle(
-                              fontSize: 12, color: AppColors.textGrey)),
-                    ])
+                            fontSize: 12,
+                            color: AppColors.textGrey,
+                          ),
+                        ),
+                      ],
+                    )
                   else if (_userLat != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.shade50,
                         borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: Colors.green.shade200),
+                        border: Border.all(color: Colors.green.shade200),
                       ),
-                      child: Row(children: [
-                        Icon(Icons.my_location,
-                            size: 11, color: Colors.green.shade700),
-                        const SizedBox(width: 4),
-                        Text('नज़दीक पहले',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.my_location,
+                            size: 11,
+                            color: Colors.green.shade700,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'नज़दीक पहले',
                             style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.green.shade700,
-                                fontWeight: FontWeight.w600)),
-                      ]),
+                              fontSize: 11,
+                              color: Colors.green.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     )
                   else
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Row(children: [
-                        Icon(Icons.location_off,
-                            size: 11, color: AppColors.textGrey),
-                        SizedBox(width: 4),
-                        Text('लोकेशन उपलब्ध नहीं',
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.location_off,
+                            size: 11,
+                            color: AppColors.textGrey,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'लोकेशन उपलब्ध नहीं',
                             style: TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textGrey)),
-                      ]),
+                              fontSize: 11,
+                              color: AppColors.textGrey,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                 ],
               ),
@@ -329,9 +393,10 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
           children: [
             CircularProgressIndicator(color: AppColors.primary),
             SizedBox(height: 16),
-            Text('आउटलेट लोड हो रहे हैं…',
-                style:
-                    TextStyle(color: AppColors.textGrey, fontSize: 15)),
+            Text(
+              'आउटलेट लोड हो रहे हैं…',
+              style: TextStyle(color: AppColors.textGrey, fontSize: 15),
+            ),
           ],
         ),
       );
@@ -346,10 +411,11 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
             children: [
               const Icon(Icons.wifi_off, size: 48, color: Colors.grey),
               const SizedBox(height: 12),
-              Text(_errorMessage!,
-                  textAlign: TextAlign.center,
-                  style:
-                      const TextStyle(color: AppColors.textGrey)),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textGrey),
+              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: _init,
@@ -368,8 +434,10 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
 
     if (_entries.isEmpty) {
       return const Center(
-        child: Text('कोई आउटलेट उपलब्ध नहीं है।',
-            style: TextStyle(color: AppColors.textGrey)),
+        child: Text(
+          'कोई आउटलेट उपलब्ध नहीं है।',
+          style: TextStyle(color: AppColors.textGrey),
+        ),
       );
     }
 
@@ -433,18 +501,16 @@ class _OutletCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isNearest
-                ? Colors.green.shade300
-                : Colors.grey.shade200,
+            color: isNearest ? Colors.green.shade300 : Colors.grey.shade200,
             width: isNearest ? 1.5 : 1,
           ),
           boxShadow: isNearest
               ? [
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.08),
+                    color: Colors.green.withValues(alpha: 0.08),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -455,9 +521,7 @@ class _OutletCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: isNearest
-                    ? Colors.green.shade50
-                    : Colors.blue.shade50,
+                color: isNearest ? Colors.green.shade50 : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -480,7 +544,9 @@ class _OutletCard extends StatelessWidget {
                         child: Text(
                           outlet.name,
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -489,18 +555,22 @@ class _OutletCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
                             borderRadius: BorderRadius.circular(6),
-                            border:
-                                Border.all(color: Colors.green.shade200),
+                            border: Border.all(color: Colors.green.shade200),
                           ),
-                          child: Text('सबसे नज़दीक',
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.green.shade700,
-                                  fontWeight: FontWeight.bold)),
+                          child: Text(
+                            'सबसे नज़दीक',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.green.shade700,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -510,14 +580,19 @@ class _OutletCard extends StatelessWidget {
                   // Highway / district
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 12, color: AppColors.textGrey),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 12,
+                        color: AppColors.textGrey,
+                      ),
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(
                           outlet.locationTag,
                           style: const TextStyle(
-                              fontSize: 13, color: AppColors.textGrey),
+                            fontSize: 13,
+                            color: AppColors.textGrey,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -530,7 +605,9 @@ class _OutletCard extends StatelessWidget {
                     Text(
                       outlet.shortAddress,
                       style: const TextStyle(
-                          fontSize: 12, color: AppColors.textGrey),
+                        fontSize: 12,
+                        color: AppColors.textGrey,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -547,7 +624,9 @@ class _OutletCard extends StatelessWidget {
                 if (distKm != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isNearest
                           ? Colors.green.shade50
@@ -557,11 +636,13 @@ class _OutletCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.near_me,
-                            size: 11,
-                            color: isNearest
-                                ? Colors.green.shade700
-                                : Colors.blue.shade700),
+                        Icon(
+                          Icons.near_me,
+                          size: 11,
+                          color: isNearest
+                              ? Colors.green.shade700
+                              : Colors.blue.shade700,
+                        ),
                         const SizedBox(width: 3),
                         Text(
                           _fmtDist(distKm!),
@@ -577,8 +658,7 @@ class _OutletCard extends StatelessWidget {
                     ),
                   ),
                 const SizedBox(height: 4),
-                const Icon(Icons.chevron_right,
-                    color: AppColors.textGrey),
+                const Icon(Icons.chevron_right, color: AppColors.textGrey),
               ],
             ),
           ],

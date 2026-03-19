@@ -11,14 +11,14 @@ class HighwayRewardsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _notoTextTheme = GoogleFonts.notoSansDevanagariTextTheme();
+    final notoTextTheme = GoogleFonts.notoSansDevanagariTextTheme();
     return MaterialApp(
       title: 'Highway Rewards',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: GoogleFonts.notoSansDevanagari().fontFamily,
-        textTheme: _notoTextTheme,
-        primaryTextTheme: _notoTextTheme,
+        textTheme: notoTextTheme,
+        primaryTextTheme: notoTextTheme,
       ),
       home: const SplashScreen(),
     );

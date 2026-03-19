@@ -540,10 +540,10 @@ class _BillDetailsScreenState extends State<BillDetailsScreen> {
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.06),
+                      color: AppColors.primary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Column(
@@ -615,9 +615,11 @@ class _BillDetailsScreenState extends State<BillDetailsScreen> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary.withOpacity(0.85),
-                      disabledBackgroundColor: AppColors.primary.withOpacity(
-                        0.5,
+                      backgroundColor: AppColors.primary.withValues(
+                        alpha: 0.85,
+                      ),
+                      disabledBackgroundColor: AppColors.primary.withValues(
+                        alpha: 0.5,
                       ),
                       minimumSize: const Size(double.infinity, 52),
                       shape: RoundedRectangleBorder(

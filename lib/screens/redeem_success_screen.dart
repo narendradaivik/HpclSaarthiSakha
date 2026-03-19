@@ -80,10 +80,11 @@ class _RedeemSuccessScreenState extends State<RedeemSuccessScreen> {
         final hi = langs
             .map((l) => l.toString())
             .firstWhere((l) => l.toLowerCase() == 'hi', orElse: () => '');
-        if (hiIn.isNotEmpty)
+        if (hiIn.isNotEmpty) {
           lang = hiIn;
-        else if (hi.isNotEmpty)
+        } else if (hi.isNotEmpty) {
           lang = hi;
+        }
       }
       await _tts.setLanguage(lang);
       await _tts.setSpeechRate(0.42);
@@ -194,7 +195,7 @@ class _RedeemSuccessScreenState extends State<RedeemSuccessScreen> {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -230,10 +231,10 @@ class _RedeemSuccessScreenState extends State<RedeemSuccessScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.05),
+                      color: AppColors.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Column(
@@ -275,7 +276,9 @@ class _RedeemSuccessScreenState extends State<RedeemSuccessScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.1),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Icon(
@@ -295,7 +298,9 @@ class _RedeemSuccessScreenState extends State<RedeemSuccessScreen> {
                                 decoration: BoxDecoration(
                                   color: _ttsPlaying
                                       ? AppColors.primary
-                                      : AppColors.primary.withOpacity(0.1),
+                                      : AppColors.primary.withValues(
+                                          alpha: 0.1,
+                                        ),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Icon(

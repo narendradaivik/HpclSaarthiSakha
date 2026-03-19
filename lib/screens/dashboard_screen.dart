@@ -54,7 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  @override
   DateTime? _lastBackPress;
 
   Future<bool> _onWillPop() async {
@@ -91,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _onWillPop();
       },
       child: Scaffold(
@@ -122,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.45),
+                  color: AppColors.primary.withValues(alpha: 0.45),
                   blurRadius: 14,
                   offset: const Offset(0, 5),
                 ),
@@ -295,7 +294,7 @@ class _ShareSheet extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(
@@ -331,7 +330,7 @@ class _ShareSheet extends StatelessWidget {
                 context,
                 Icons.share,
                 'और शेयर',
-                AppColors.primary.withOpacity(0.1),
+                AppColors.primary.withValues(alpha: 0.1),
                 AppColors.primary,
               ),
             ],
@@ -688,10 +687,10 @@ class _HomeTabState extends State<HomeTab> {
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                           ),
                         ),
                         child: _statsLoading
@@ -775,8 +774,8 @@ class _HomeTabState extends State<HomeTab> {
                                           ? (_redeemableLiters / _totalLiters)
                                                 .clamp(0.0, 1.0)
                                           : 0,
-                                      backgroundColor: Colors.white.withOpacity(
-                                        0.15,
+                                      backgroundColor: Colors.white.withValues(
+                                        alpha: 0.15,
                                       ),
                                       valueColor:
                                           const AlwaysStoppedAnimation<Color>(
@@ -864,7 +863,7 @@ class _HomeTabState extends State<HomeTab> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: 3,
-                        itemBuilder: (_, __) => _shimmerNearbyCard(),
+                        itemBuilder: (_, __x) => _shimmerNearbyCard(),
                       ),
                     )
                   else if (_nearbyError != null)
@@ -980,7 +979,7 @@ class _HomeTabState extends State<HomeTab> {
                         ? ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: 5,
-                            itemBuilder: (_, __) => _shimmerRewardCard(),
+                            itemBuilder: (_, __x) => _shimmerRewardCard(),
                           )
                         : _rewards.isEmpty
                         ? _emptyBox(
@@ -1060,13 +1059,19 @@ class _HomeTabState extends State<HomeTab> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: canRedeem
-                                            ? Colors.green.withOpacity(0.12)
-                                            : Colors.black.withOpacity(0.06),
+                                            ? Colors.green.withValues(
+                                                alpha: 0.12,
+                                              )
+                                            : Colors.black.withValues(
+                                                alpha: 0.06,
+                                              ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.03),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.03,
+                                        ),
                                         blurRadius: 3,
                                         offset: const Offset(0, 1),
                                       ),
@@ -1098,7 +1103,7 @@ class _HomeTabState extends State<HomeTab> {
                                             width: 36,
                                             height: 36,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
+                                            errorBuilder: (ctx, err, stack) =>
                                                 Image.asset(
                                                   r['icon'] as String? ??
                                                       'assets/images/default_gift.png',
@@ -1199,7 +1204,7 @@ class _HomeTabState extends State<HomeTab> {
                           'पूरा हिसाब देखने के लिए प्रोफ़ाइल → लेन-देन पर जाएँ',
                     )
                   else
-                    ..._redemptions.take(5).map(_redemptionCard).toList(),
+                    ..._redemptions.take(5).map(_redemptionCard),
                 ],
               ),
             ),
@@ -1256,7 +1261,7 @@ class _HomeTabState extends State<HomeTab> {
                   else ...[
                     _fuelSummaryBanner(_fuelHistory!.summary),
                     const SizedBox(height: 10),
-                    ..._fuelHistory!.claims.map(_fuelClaimCard).toList(),
+                    ..._fuelHistory!.claims.map(_fuelClaimCard),
                   ],
                 ],
               ),
@@ -1294,12 +1299,12 @@ class _HomeTabState extends State<HomeTab> {
         border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: Colors.black.withValues(alpha: 0.055),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -1500,30 +1505,6 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Widget _summaryTab(IconData icon, String label) => Expanded(
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 13, color: AppColors.textGrey),
-        const SizedBox(width: 3),
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 13, color: AppColors.textGrey),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _summaryDivider() => Container(
-    width: 1,
-    height: 14,
-    color: Colors.grey.shade400,
-    margin: const EdgeInsets.symmetric(horizontal: 2),
-  );
-
   // ── FUEL CLAIM CARD ────────────────────────────────────────────────────────
 
   Widget _fuelClaimCard(FuelClaim c) {
@@ -1554,12 +1535,12 @@ class _HomeTabState extends State<HomeTab> {
         border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.055),
+            color: Colors.black.withValues(alpha: 0.055),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
+            color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -1736,12 +1717,12 @@ class _HomeTabState extends State<HomeTab> {
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 3,
               offset: const Offset(0, 1),
             ),
@@ -1772,7 +1753,7 @@ class _HomeTabState extends State<HomeTab> {
                     width: 22,
                     height: 22,
                     decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.1),
+                      color: AppColors.accent.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1938,12 +1919,12 @@ class _HomeTabState extends State<HomeTab> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
