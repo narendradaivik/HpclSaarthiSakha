@@ -1,8 +1,6 @@
 name: Security Scan
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -20,8 +18,27 @@ jobs:
         with:
           languages: java
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      # ✅ FIX START
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Build project
+        run: flutter build apk --debug
+      # ✅ FIX END
 
       - name: Perform Analysis
         uses: github/codeql-action/analyze@v3

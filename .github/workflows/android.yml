@@ -32,11 +32,7 @@ jobs:
       with:
         flutter-version: '3.41.4'
 
-       # FIX: Create local.properties s (IMPORTANT)
-    - name: Create local.properties
-      run: |
-        echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-        echo "flutter.sdk=$HOME/flutter" >> android/local.properties
+        
 
     # 4. Decode Keystore
     - name: Decode Keystore
