@@ -30,8 +30,8 @@ jobs:
             --base main \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @prabhakardwi" \
-            --reviewer prabhakardwi || echo "PR already exists")
+            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @nnarrendra" \
+            --reviewer nnarrendra || echo "PR already exists")
 
           echo "PR_URL=$PR_URL"
 
@@ -56,7 +56,7 @@ jobs:
       - name: Enable Auto Merge
         if: steps.create_pr.outputs.pr_number != ''
         run: |
-          echo "Enabling auto-merge..."
+          echo "Enabling auto-mergeee..."
           gh pr merge ${{ steps.create_pr.outputs.pr_number }} \
             --squash \
             --auto
@@ -69,7 +69,7 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
           -d "{
-            \"text\": \"🚀 New Pull Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
+            \"text\": \"🚀 New Pull Request or Merge Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
           }" \
           ${{ secrets.TEAMS_WEBHOOK_URL }}
 
