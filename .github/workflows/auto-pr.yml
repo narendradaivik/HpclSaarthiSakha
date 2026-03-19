@@ -69,7 +69,7 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
           -d "{
-            \"text\": \"🚀 New Pull Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
+            \"text\": \"🚀 New Pull Request or Merge Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
           }" \
           ${{ secrets.TEAMS_WEBHOOK_URL }}
 
