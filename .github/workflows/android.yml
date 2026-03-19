@@ -110,7 +110,7 @@ jobs:
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "🚀 SAARTHI SAKHA APP Released v${{ steps.version.outputs.version }}"
         body: |
-          SAARTHI SAKHA APP Released Successfully!
+          SAARTHI SAKHA APK Released Successfully!
 
           Repo: ${{ github.repository }}
           Version: ${{ steps.version.outputs.version }}
