@@ -88,7 +88,7 @@ jobs:
 
         curl -H "Content-Type: application/json" \
         -d "{
-          \"text\": \"🚀 APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
+          \"text\": \"🚀 SAARTHI SAKHA APK Released Successfully!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: main\\n👤 By: ${{ github.actor }}\\n🔖 Version: ${{ steps.version.outputs.version }}\\n\\n📝 Release Notes:\\n$NOTES\\n\\n⬇️ Download APK:\\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}\"
         }" \
         ${{ secrets.TEAMS_WEBHOOK_URL }}
 
