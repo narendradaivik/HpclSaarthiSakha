@@ -1,4 +1,4 @@
-name: Auto Create PR + Notify
+name: Auto PR + Auto Merge
 
 on:
   push:
@@ -14,85 +14,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # IMPORTANT
+          fetch-depth: 0
 
-      # 2. Create PR using GitHub CLI ✅
-      - name: Create Pull Request
-        id: create_pr
+      - name: Create PR
+        id: pr
         run: |
-          echo "Creating PR..."
-
           PR_URL=$(gh pr create \
             --base main \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created\n\n👤 Author: ${{ github.actor }}\n🌿 Branch: ${{ github.ref_name }}\n\n👀 Reviewer: @nnarrendra" \
-            --reviewer nnarrendra || echo "PR already exists")
+            --body "🚀 Auto PR created" || echo "")
 
-          echo "PR_URL=$PR_URL"
-
-          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$' || echo "")
-
-          # If PR already exists, fetch it
-          if [ -z "$PR_NUMBER" ]; then
-            echo "Fetching existing PR..."
+          if [ -z "$PR_URL" ]; then
             PR_NUMBER=$(gh pr list \
               --head "${{ github.ref_name }}" \
               --base main \
               --json number \
               -q '.[0].number')
+          else
+            PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
           fi
 
-          echo "PR Number = $PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Enable Auto Merge ✅
+      # ✅ SAFE AUTO MERGE (waits for checks)
       - name: Enable Auto Merge
-        if: steps.create_pr.outputs.pr_number != ''
+        if: steps.pr.outputs.pr_number != ''
         run: |
-          echo "Enabling auto-merge..."
-          gh pr merge ${{ steps.create_pr.outputs.pr_number }} \
-            --squash \
-            --auto
+          gh pr merge ${{ steps.pr.outputs.pr_number }} --squash --auto
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 4. Notify Microsoft Teams 🚀
-      - name: Notify Teams
-        if: steps.create_pr.outputs.pr_number != ''
-        run: |
-          curl -H "Content-Type: application/json" \
-          -d "{
-            \"text\": \"🚀 New Pull Request or Merge Request Created!\\n\\n📦 Repo: ${{ github.repository }}\\n🌿 Branch: ${{ github.ref_name }}\\n👤 Author: ${{ github.actor }}\\n\\n🔗 PR Link:\\nhttps://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}\"
-          }" \
-          ${{ secrets.TEAMS_WEBHOOK_URL }}
-
-      # 5. Send Email via Gmail 📧
-      - name: Send Email
-        if: steps.create_pr.outputs.pr_number != ''
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🚀 New PR Created - Approval Required"
-          body: |
-            A new Pull Request has been created.
-
-            📦 Repository: ${{ github.repository }}
-            🌿 Branch: ${{ github.ref_name }}
-            👤 Author: ${{ github.actor }}
-
-            🔗 Review here:
-            https://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pr_number }}
-
-          to: narendra.singh@commdel.net
-          from: ${{ secrets.EMAIL_USERNAME }}

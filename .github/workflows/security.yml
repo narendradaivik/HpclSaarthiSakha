@@ -1,16 +1,12 @@
 name: Security Scan
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
   analyze:
-    name: CodeQL Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +17,6 @@ jobs:
         with:
           languages: java
 
-      # ✅ FIX (Flutter compatible)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -33,13 +28,12 @@ jobs:
         with:
           flutter-version: '3.41.4'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-      - name: Build project (for CodeQL)
+      - name: Build project
         run: flutter build apk --debug
 
       - name: Perform Analysis

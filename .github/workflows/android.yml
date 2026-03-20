@@ -1,4 +1,4 @@
-name: Flutter Release APK
+name: Build & Release APK
 
 permissions:
   contents: write
@@ -35,8 +35,7 @@ jobs:
         with:
           flutter-version: '3.41.4'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
@@ -60,7 +59,7 @@ jobs:
       - name: Rename APK
         run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
 
-      # 🚀 Release ONLY on main push
+      # 🚀 Only after merge to main
       - name: Create GitHub Release
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
