@@ -318,7 +318,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen> {
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _b, _c) => Image.asset(
+                              errorBuilder: (_, b, c) => Image.asset(
                                 r['icon'] as String? ??
                                     'assets/images/default_gift.png',
                                 width: 48,

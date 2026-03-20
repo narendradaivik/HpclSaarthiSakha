@@ -411,7 +411,7 @@ class _RedeemConfirmScreenState extends State<RedeemConfirmScreen> {
                                     width: 44,
                                     height: 44,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, _b, _c) => Image.asset(
+                                    errorBuilder: (_, b, c) => Image.asset(
                                       widget.reward['icon'] as String? ??
                                           'assets/images/default_gift.png',
                                       width: 44,

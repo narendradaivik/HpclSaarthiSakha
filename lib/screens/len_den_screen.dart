@@ -455,7 +455,7 @@ class _LenDenScreenState extends State<LenDenScreen> {
     child: ListView.builder(
       padding: const EdgeInsets.all(12),
       itemCount: 6,
-      itemBuilder: (_, _b) => Container(
+      itemBuilder: (_, b) => Container(
         margin: const EdgeInsets.only(bottom: 8),
         height: 74,
         decoration: BoxDecoration(

@@ -189,8 +189,8 @@ class BillService {
       final body = <String, dynamic>{
         'imageBase64': base64Image,
         'driver_id': driverId,
-        if (driverLat != null) 'driver_lat': driverLat,
-        if (driverLng != null) 'driver_lng': driverLng,
+        ?'driver_lat': driverLat,
+        ?'driver_lng': driverLng,
       };
 
       final response = await http
@@ -273,11 +273,11 @@ class BillService {
         'quantity': bill.quantity,
         'receipt_number': bill.billNumber,
         // Prefer invoice_url — image already uploaded by extract-bill
-        if (bill.invoiceUrl != null) 'invoice_url': bill.invoiceUrl,
-        if (imageBase64 != null) 'invoice_image_base64': imageBase64,
+        ?'invoice_url': bill.invoiceUrl,
+        ?'invoice_image_base64': imageBase64,
         // Driver GPS — only included when available
-        if (driverLat != null) 'driver_lat': driverLat,
-        if (driverLng != null) 'driver_lng': driverLng,
+        ?'driver_lat': driverLat,
+        ?'driver_lng': driverLng,
       };
       // ignore: avoid_print
 

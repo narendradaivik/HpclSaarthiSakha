@@ -352,7 +352,7 @@ class RedemptionService {
         errorMsg,
         statusCode: response.statusCode,
         errorCode: errorCode,
-        errorData: {...json, if (available != null) 'available': available, if (required_ != null) 'required': required_},
+        errorData: {...json, ?'available': available, ?'required': required_},
       );
     } on SocketException {
       return ApiResponse.error('इंटरनेट कनेक्शन नहीं है। कृपया जाँचें।');
