@@ -3,7 +3,6 @@ import 'package:highway_rewards/screens/phone_verification_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/services.dart';
 import 'len_den_screen.dart';
-import 'qr_scan_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

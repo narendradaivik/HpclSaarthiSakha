@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen>
           context,
           PageRouteBuilder(
             pageBuilder: (_, a, b) => const PhoneVerificationScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
+            transitionsBuilder: (_, anim, _sec, child) =>
                 FadeTransition(opacity: anim, child: child),
             transitionDuration: const Duration(milliseconds: 500),
           ),

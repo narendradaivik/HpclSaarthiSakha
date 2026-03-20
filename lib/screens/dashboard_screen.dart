@@ -521,7 +521,7 @@ class _HomeTabState extends State<HomeTab> {
     Position? position;
     try {
       position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: AndroidSettings(accuracy: LocationAccuracy.high),
       );
     } catch (_) {
       setState(() {
@@ -863,7 +863,7 @@ class _HomeTabState extends State<HomeTab> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: 3,
-                        itemBuilder: (_, __x) => _shimmerNearbyCard(),
+                        itemBuilder: (_, ix) => _shimmerNearbyCard(),
                       ),
                     )
                   else if (_nearbyError != null)
@@ -979,7 +979,7 @@ class _HomeTabState extends State<HomeTab> {
                         ? ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: 5,
-                            itemBuilder: (_, __x) => _shimmerRewardCard(),
+                            itemBuilder: (_, ix) => _shimmerRewardCard(),
                           )
                         : _rewards.isEmpty
                         ? _emptyBox(
