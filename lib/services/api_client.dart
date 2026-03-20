@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 import 'api_response.dart';
@@ -16,18 +17,18 @@ class ApiClient {
 
   /// Headers for Edge Function calls (auth via Bearer token after login)
   Map<String, String> get _functionHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...TokenStore.instance.authHeader,
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    ...TokenStore.instance.authHeader,
+  };
 
   /// Headers for Supabase REST table calls (requires apikey)
   Map<String, String> get _restHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'apikey': ApiConstants.anonKey,
-        ...TokenStore.instance.authHeader, // Bearer token after login
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'apikey': ApiConstants.anonKey,
+    ...TokenStore.instance.authHeader, // Bearer token after login
+  };
 
   // ── POST (Edge Functions) ─────────────────────────────────────────────────
   Future<ApiResponse<Map<String, dynamic>>> post(
@@ -61,7 +62,8 @@ class ApiClient {
     bool useRestBase = false,
   }) async {
     var uri = Uri.parse(
-        '${useRestBase ? ApiConstants.restBaseUrl : ApiConstants.functionsBaseUrl}$endpoint');
+      '${useRestBase ? ApiConstants.restBaseUrl : ApiConstants.functionsBaseUrl}$endpoint',
+    );
     if (queryParams != null) {
       uri = uri.replace(queryParameters: queryParams);
     }
@@ -111,7 +113,8 @@ class ApiClient {
   // ── Response handlers ──────────────────────────────────────────────────────
 
   ApiResponse<Map<String, dynamic>> _handleObjectResponse(
-      http.Response response) {
+    http.Response response,
+  ) {
     _logResponse(response.statusCode, response.body);
 
     try {
@@ -121,42 +124,45 @@ class ApiClient {
         if (decoded is Map<String, dynamic>) {
           if (decoded['success'] == false) {
             return ApiResponse.error(
-                decoded['message'] as String? ?? 'कुछ गलत हो गया।',
-                statusCode: response.statusCode);
+              decoded['message'] as String? ?? 'कुछ गलत हो गया।',
+              statusCode: response.statusCode,
+            );
           }
           return ApiResponse.ok(decoded, statusCode: response.statusCode);
         }
-        return ApiResponse.error('Unexpected format',
-            statusCode: response.statusCode);
+        return ApiResponse.error(
+          'Unexpected format',
+          statusCode: response.statusCode,
+        );
       }
 
       final msg = decoded is Map
           ? (decoded['message'] as String? ??
-              decoded['error'] as String? ??
-              'Server Error (${response.statusCode})')
+                decoded['error'] as String? ??
+                'Server Error (${response.statusCode})')
           : 'Server Error (${response.statusCode})';
       return ApiResponse.error(msg, statusCode: response.statusCode);
     } catch (_) {
-      return ApiResponse.error('Parse error',
-          statusCode: response.statusCode);
+      return ApiResponse.error('Parse error', statusCode: response.statusCode);
     }
   }
 
   ApiResponse<List<Map<String, dynamic>>> _handleListResponse(
-      http.Response response) {
+    http.Response response,
+  ) {
     _logResponse(response.statusCode, response.body);
 
     try {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final decoded = jsonDecode(response.body);
         if (decoded is List) {
-          final list = decoded
-              .whereType<Map<String, dynamic>>()
-              .toList();
+          final list = decoded.whereType<Map<String, dynamic>>().toList();
           return ApiResponse.ok(list, statusCode: response.statusCode);
         }
-        return ApiResponse.error('Expected array response',
-            statusCode: response.statusCode);
+        return ApiResponse.error(
+          'Expected array response',
+          statusCode: response.statusCode,
+        );
       }
 
       final decoded = jsonDecode(response.body);
@@ -165,21 +171,22 @@ class ApiClient {
           : 'Server Error (${response.statusCode})';
       return ApiResponse.error(msg, statusCode: response.statusCode);
     } catch (_) {
-      return ApiResponse.error('Parse error',
-          statusCode: response.statusCode);
+      return ApiResponse.error('Parse error', statusCode: response.statusCode);
     }
   }
 
   // ── Logging ────────────────────────────────────────────────────────────────
   void _log(String method, String url, Map<String, dynamic>? body) {
     // ignore: avoid_print
-    print('🌐 [$method] $url');
-    if (body != null) print('   📤 ${jsonEncode(body)}');
+    debugPrint('🌐 [$method] $url');
+    if (body != null) debugPrint('   📤 ${jsonEncode(body)}');
   }
 
   void _logResponse(int code, String body) {
     final icon = code >= 200 && code < 300 ? '✅' : '❌';
     // ignore: avoid_print
-    print('$icon [$code] ${body.length > 200 ? '${body.substring(0, 200)}…' : body}');
+    debugPrint(
+      '$icon [$code] ${body.length > 200 ? '${body.substring(0, 200)}…' : body}',
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:highway_rewards/model/outlet.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,7 +57,7 @@ class OutletService {
         body: jsonEncode({'lat': lat, 'lng': lng}),
       );
 
-      print(response.body);
+      debugPrint(response.body);
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         final success = json['success'] as bool? ?? false;
