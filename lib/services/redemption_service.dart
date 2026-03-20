@@ -317,6 +317,8 @@ class RedemptionService {
           )
           .timeout(const Duration(seconds: 30));
 
+      // ignore: avoid_print
+
       print(response.body);
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -354,11 +356,7 @@ class RedemptionService {
         errorMsg,
         statusCode: response.statusCode,
         errorCode: errorCode,
-        errorData: {
-          ...json,
-          if (available != null) 'available': available,
-          if (required_ != null) 'required': required_,
-        },
+        errorData: {...json, ?'available': available, ?'required': required_},
       );
     } on SocketException {
       return ApiResponse.error('इंटरनेट कनेक्शन नहीं है। कृपया जाँचें।');
@@ -392,6 +390,8 @@ class RedemptionService {
         'limit': '$limit',
       },
     );
+    // ignore: avoid_print
+
     print(response);
 
     if (!response.success) {
