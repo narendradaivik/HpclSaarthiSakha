@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 import 'api_response.dart';
@@ -280,7 +281,7 @@ class BillService {
       };
       // ignore: avoid_print
 
-      print(jsonEncode(body));
+      debugPrint(jsonEncode(body));
 
       final uri = Uri.parse('${ApiConstants.functionsBaseUrl}/submit-claim');
 

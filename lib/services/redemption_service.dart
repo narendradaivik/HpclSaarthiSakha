@@ -317,10 +317,6 @@ class RedemptionService {
           )
           .timeout(const Duration(seconds: 30));
 
-      // ignore: avoid_print
-
-      print(response.body);
-
       final json = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -390,9 +386,6 @@ class RedemptionService {
         'limit': '$limit',
       },
     );
-    // ignore: avoid_print
-
-    print(response);
 
     if (!response.success) {
       return ApiResponse.error(
