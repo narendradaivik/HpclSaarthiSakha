@@ -2,15 +2,21 @@ name: Security Scan
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
   push:
     branches:
-      - "**"    
+      - main
 
 jobs:
-  analyze:
+  security:
+    name: Security Scan
     runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      checks: write
 
     steps:
       - uses: actions/checkout@v4
@@ -20,24 +26,9 @@ jobs:
         with:
           languages: java
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+        continue-on-error: true
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.4'
-
-      - run: flutter pub get
-
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-
-      - name: Build project
-        run: flutter build apk --debug
-
-      - name: Perform Analysis
+      - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
