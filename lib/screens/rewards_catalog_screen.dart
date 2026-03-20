@@ -283,7 +283,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -318,7 +318,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen> {
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset(
+                              errorBuilder: (_, _b, _c) => Image.asset(
                                 r['icon'] as String? ??
                                     'assets/images/default_gift.png',
                                 width: 48,

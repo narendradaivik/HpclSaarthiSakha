@@ -258,7 +258,7 @@ class _RedeemConfirmScreenState extends State<RedeemConfirmScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(
-                          color: AppColors.primary.withOpacity(0.4),
+                          color: AppColors.primary.withValues(alpha: 0.4),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -411,7 +411,7 @@ class _RedeemConfirmScreenState extends State<RedeemConfirmScreen> {
                                     width: 44,
                                     height: 44,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Image.asset(
+                                    errorBuilder: (_, _b, _c) => Image.asset(
                                       widget.reward['icon'] as String? ??
                                           'assets/images/default_gift.png',
                                       width: 44,
@@ -476,10 +476,10 @@ class _RedeemConfirmScreenState extends State<RedeemConfirmScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.05),
+                      color: AppColors.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Column(
@@ -624,9 +624,7 @@ class _RedeemConfirmScreenState extends State<RedeemConfirmScreen> {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: AppColors.primary.withOpacity(
-                        0.5,
-                      ),
+                      disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                       minimumSize: const Size(double.infinity, 52),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),

@@ -214,7 +214,7 @@ class _BillProcessingScreenState extends State<BillProcessingScreen>
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.13),
+                color: Colors.black.withValues(alpha: 0.13),
                 blurRadius: 18,
                 offset: const Offset(0, 5),
               ),

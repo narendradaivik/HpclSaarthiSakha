@@ -186,7 +186,7 @@ class _BillDetailsScreenState extends State<BillDetailsScreen> {
         if (perm != LocationPermission.denied &&
             perm != LocationPermission.deniedForever) {
           final pos = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
+            locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
           ).timeout(const Duration(seconds: 10));
           driverLat = pos.latitude;
           driverLng = pos.longitude;

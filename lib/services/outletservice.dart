@@ -19,8 +19,9 @@ class OutletService {
   }) async {
     final queryParams = <String, String>{'select': '*', 'order': 'name.asc'};
     if (activeOnly) queryParams['is_active'] = 'eq.true';
-    if (highway != null && highway.isNotEmpty)
+    if (highway != null && highway.isNotEmpty) {
       queryParams['highway'] = 'eq.$highway';
+    }
 
     final response = await ApiClient.instance.getList(
       '/outlets',

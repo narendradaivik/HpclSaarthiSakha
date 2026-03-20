@@ -107,7 +107,7 @@ class _JoinScreenState extends State<JoinScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -139,7 +139,7 @@ class _JoinScreenState extends State<JoinScreen> {
                         Text(
                           'रिडीम योग्य',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
@@ -252,7 +252,7 @@ class _JoinScreenState extends State<JoinScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -398,7 +398,7 @@ class _ShareBottomSheet extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(
@@ -437,7 +437,7 @@ class _ShareBottomSheet extends StatelessWidget {
                 context,
                 icon: Icons.share,
                 label: 'और शेयर',
-                bg: AppColors.primary.withOpacity(0.1),
+                bg: AppColors.primary.withValues(alpha: 0.1),
                 iconColor: AppColors.primary,
               ),
             ],

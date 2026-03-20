@@ -79,7 +79,7 @@ class _RewardClaimScreenState extends State<RewardClaimScreen> {
 
       // Permission granted — get current position
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       ).timeout(const Duration(seconds: 10));
 
       if (mounted) {
@@ -100,7 +100,7 @@ class _RewardClaimScreenState extends State<RewardClaimScreen> {
     if (!_locationGranted) return;
     try {
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       ).timeout(const Duration(seconds: 8));
       _driverLat = pos.latitude;
       _driverLng = pos.longitude;
@@ -1062,7 +1062,7 @@ class _CropScreenState extends State<_CropScreen> {
                       // Overlay + handles redrawn via ValueNotifier (no setState)
                       AnimatedBuilder(
                         animation: _cropNotifier,
-                        builder: (_, _i) => CustomPaint(
+                        builder: (_, i) => CustomPaint(
                           size: area,
                           painter: _CropOverlayPainter(
                             cropRect: _cropNotifier.value,
