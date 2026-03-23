@@ -6,9 +6,7 @@ permissions:
 on:
   push:
     branches:
-      - main        # ← ONLY runs after PR is merged to main
-
-# Remove the pull_request trigger entirely
+      - main
 
 jobs:
   build:
@@ -46,8 +44,10 @@ jobs:
       - name: Extract version
         id: version
         run: |
-          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
+          # Strip build number after '+' so "1.0.0+1" becomes "1.0.0"
+          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
 
       - name: Build Release APK
         run: flutter build apk --release
@@ -59,11 +59,18 @@ jobs:
       - name: Rename APK
         run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
 
+      - name: Delete existing release if present
+        run: |
+          gh release delete v${{ steps.version.outputs.version }} --yes --cleanup-tag 2>/dev/null || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release v${{ steps.version.outputs.version }}
           files: app-${{ steps.version.outputs.version }}.apk
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
