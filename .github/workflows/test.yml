@@ -1,12 +1,11 @@
 name: Flutter Tests
 
 on:
-  push:
-    branches-ignore:
-      - main
   pull_request:
     branches:
       - main
+      - dev
+      - uat
 
 jobs:
   test:
@@ -29,7 +28,7 @@ jobs:
       - run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+        run: flutter analyze
 
       - name: Run Tests
-        run: flutter test || true
+        run: flutter test

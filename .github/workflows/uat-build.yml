@@ -1,0 +1,71 @@
+name: UAT Build
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  build:
+    name: UAT Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Flutter
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
+          echo "version=$VERSION-uat" >> $GITHUB_OUTPUT
+
+      - name: Build Release APK
+        run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk app-${{ steps.version.outputs.version }}.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uat-apk-${{ steps.version.outputs.version }}
+          path: app-${{ steps.version.outputs.version }}.apk
+          retention-days: 14
+
+      - name: Notify Teams
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🧪 UAT Build Ready for Testing!\n\n📦 Repo: ${{ github.repository }}\n🌿 Branch: uat\n👤 By: ${{ github.actor }}\n🔖 Version: ${{ steps.version.outputs.version }}\n\n⬇️ Download from Actions artifacts:\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n✅ Please test and approve for production release.\"
+          }" \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}

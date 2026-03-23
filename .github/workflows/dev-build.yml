@@ -1,0 +1,64 @@
+name: Dev Build
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    name: Dev Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Flutter
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
+          echo "version=$VERSION-dev" >> $GITHUB_OUTPUT
+
+      - name: Build Debug APK
+        run: flutter build apk --debug
+
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-debug.apk app-${{ steps.version.outputs.version }}.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-apk-${{ steps.version.outputs.version }}
+          path: app-${{ steps.version.outputs.version }}.apk
+          retention-days: 7
+
+      - name: Notify Teams
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🔧 DEV Build Ready!\n\n📦 Repo: ${{ github.repository }}\n🌿 Branch: dev\n👤 By: ${{ github.actor }}\n🔖 Version: ${{ steps.version.outputs.version }}\n\n⬇️ Download from Actions artifacts:\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+          }" \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}

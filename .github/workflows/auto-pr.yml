@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+      - dev
+      - uat
 
 permissions:
   contents: write
@@ -18,24 +20,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create PR
+      - name: Create PR to dev
         id: pr
         run: |
           PR_URL=$(gh pr create \
-            --base main \
+            --base dev \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created by workflow. Waiting for checks and reviewer approval." \
+            --body "🚀 Auto PR created. Waiting for checks and reviewer approval." \
             --reviewer nnarrendra || echo "")
 
           if [ -z "$PR_URL" ]; then
             PR_NUMBER=$(gh pr list \
               --head "${{ github.ref_name }}" \
-              --base main \
+              --base dev \
               --json number \
               -q '.[0].number')
-
-            # Add reviewer to existing PR
             if [ -n "$PR_NUMBER" ]; then
               gh pr edit $PR_NUMBER --add-reviewer nnarrendra || true
             fi
