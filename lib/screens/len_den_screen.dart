@@ -197,9 +197,9 @@ class _LenDenScreenState extends State<LenDenScreen> {
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.13),
+                    color: Colors.white.withValues(alpha: 0.13),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -455,7 +455,7 @@ class _LenDenScreenState extends State<LenDenScreen> {
     child: ListView.builder(
       padding: const EdgeInsets.all(12),
       itemCount: 6,
-      itemBuilder: (_, __) => Container(
+      itemBuilder: (_, b) => Container(
         margin: const EdgeInsets.only(bottom: 8),
         height: 74,
         decoration: BoxDecoration(

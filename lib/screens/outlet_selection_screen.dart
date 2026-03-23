@@ -96,7 +96,7 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
       }
 
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       ).timeout(const Duration(seconds: 8));
 
       _userLat = pos.latitude;
@@ -214,7 +214,7 @@ class _OutletSelectionScreenState extends State<OutletSelectionScreen> {
                             width: 40,
                             height: 40,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _a, _b) => Image.asset(
+                            errorBuilder: (_, a, b) => Image.asset(
                               widget.reward['icon'] as String? ??
                                   'assets/images/default_gift.png',
                               width: 40,

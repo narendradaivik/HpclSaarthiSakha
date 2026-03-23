@@ -3,7 +3,7 @@ name: Flutter Tests
 on:
   push:
     branches-ignore:
-      - main        # Don't re-run on main after merge
+      - main
   pull_request:
     branches:
       - main
@@ -29,7 +29,7 @@ jobs:
       - run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze || true
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
       - name: Run Tests
         run: flutter test || true

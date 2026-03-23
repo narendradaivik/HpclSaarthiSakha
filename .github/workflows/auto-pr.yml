@@ -25,7 +25,8 @@ jobs:
             --base main \
             --head "${{ github.ref_name }}" \
             --title "Auto PR - ${{ github.ref_name }}" \
-            --body "🚀 Auto PR created by workflow. Waiting for checks and reviewer approval." || echo "")
+            --body "🚀 Auto PR created by workflow. Waiting for checks and reviewer approval." \
+            --reviewer nnarrendra || echo "")
 
           if [ -z "$PR_URL" ]; then
             PR_NUMBER=$(gh pr list \
@@ -33,6 +34,11 @@ jobs:
               --base main \
               --json number \
               -q '.[0].number')
+
+            # Add reviewer to existing PR
+            if [ -n "$PR_NUMBER" ]; then
+              gh pr edit $PR_NUMBER --add-reviewer nnarrendra || true
+            fi
           else
             PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
           fi
@@ -41,11 +47,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      # Auto-merge is SAFE because branch protection requires:
-      # 1. Flutter Tests to pass
-      # 2. Security Scan to pass  
-      # 3. 1 CODEOWNER approval
-      # It will wait for all of these before actually merging.
       - name: Enable Auto Merge
         if: steps.pr.outputs.pr_number != ''
         run: |

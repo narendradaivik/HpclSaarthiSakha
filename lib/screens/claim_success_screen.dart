@@ -61,7 +61,7 @@ class _ClaimSuccessScreenState extends State<ClaimSuccessScreen>
                   child: Container(
                     width: 80, height: 80,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
+                      color: AppColors.primary.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.check_circle_outline,
@@ -93,7 +93,7 @@ class _ClaimSuccessScreenState extends State<ClaimSuccessScreen>
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.04),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 12, offset: const Offset(0, 4)),
                     ],
                   ),
