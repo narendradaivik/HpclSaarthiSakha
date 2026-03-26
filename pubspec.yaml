@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   webview_flutter: ^4.13.1
   geolocator: ^14.0.2
   image_picker: ^1.1.2
